@@ -231,6 +231,20 @@
         .btn:active { background: #333; color: white; transform: scale(0.98); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* BOSS 戰專用按鈕樣式 - 紅色警告風格 */
+        #bossBtn {
+            background: #ff0000;
+            color: #ffffff;
+            border: 2px solid #000;
+            display: none;
+            animation: pulseWarning 1.5s infinite;
+        }
+        @keyframes pulseWarning {
+            0% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0); }
+        }
+
         #video {
             width: 100%;
             height: 100%;
@@ -359,6 +373,8 @@
 
         <div class="bottom-buttons">
             <button class="btn" id="nextLevelBtn" onclick="nextLevel()" style="display:none">⏭ NEXT LEVEL</button>
+            <!-- 新增 Boss 戰按鈕 -->
+            <button class="btn" id="bossBtn" onclick="goToBoss()">🔥 FIGHT BOSS 🔥</button>
         </div>
     </div>
 
@@ -366,15 +382,12 @@
 
     <script>
         // ========== 第五關卡設定 ==========
-        // 減少到 2 張隨機照片
         const LEVEL_IMAGES = [
             "https://i.postimg.cc/K19QgPF4/IMG-9859.jpg",
             "https://i.postimg.cc/pyDZBbxs/IMG-9861.jpg"
         ];
         
-        // 對應的限時 (秒) - 2個關卡
-        const LEVEL_TIMES = [300, 240];  // 5分鐘, 4分鐘
-        
+        const LEVEL_TIMES = [300, 240]; 
         const MAX_REDUCTION_PER_LEVEL = 4;
         
         function getReductionBySimilarity(similarity) {
@@ -403,7 +416,6 @@
             gameActive: false
         };
         
-        // DOM 元素
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const targetImg = document.getElementById('targetImg');
@@ -414,12 +426,12 @@
         const takePhotoBtn = document.getElementById('takePhotoBtn');
         const submitBtn = document.getElementById('submitBtn');
         const nextLevelBtn = document.getElementById('nextLevelBtn');
+        const bossBtn = document.getElementById('bossBtn'); // 取得 Boss 按鈕
         const timerDisplay = document.getElementById('timer');
         const levelInfo = document.getElementById('levelInfo');
         const energyFill = document.getElementById('energyFill');
         const energyPercent = document.getElementById('energyPercent');
         
-        // ========== 自動啟動 ==========
         window.addEventListener('load', () => {
             startMatching();
         });
@@ -432,35 +444,26 @@
         async function initCamera() {
             try {
                 showToast("REQUESTING CAMERA ACCESS...");
-                
                 const constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'environment' } };
                 gameState.camera = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = gameState.camera;
-                
                 await new Promise(resolve => { video.onloadedmetadata = () => { video.play(); resolve(); }; });
                 video.classList.add('visible');
-                
                 const cameraPlaceholder = document.getElementById('cameraPlaceholder');
                 if (cameraPlaceholder) cameraPlaceholder.style.display = 'none';
-                
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 gameState.cameraActive = true;
-                
                 const cameraStatus = document.getElementById('cameraStatus');
                 if (cameraStatus) {
                     cameraStatus.textContent = 'ONLINE';
                     cameraStatus.style.color = '#00aa00';
                 }
-                
                 if (takePhotoBtn) takePhotoBtn.disabled = false;
-                
                 showToast("✅ CAMERA READY");
             } catch (error) {
                 console.error("Camera error:", error);
                 showToast("❌ CAMERA ACCESS DENIED", "error");
-                const cameraStatus = document.getElementById('cameraStatus');
-                if (cameraStatus) cameraStatus.textContent = 'OFFLINE';
             }
         }
         
@@ -468,13 +471,10 @@
             const levelIdx = gameState.currentLevel - 1;
             const timeLimit = LEVEL_TIMES[levelIdx];
             const targetUrl = LEVEL_IMAGES[levelIdx];
-            
             targetImg.src = targetUrl;
             targetImg.style.display = 'block';
             targetPlaceholder.style.display = 'none';
-            
             levelInfo.innerHTML = `LEVEL ${gameState.currentLevel}/2 | TIME: ${Math.floor(timeLimit/60)}:${(timeLimit%60).toString().padStart(2,'0')}`;
-            
             gameState.isSubmitted = false;
             gameState.levelCompleted = false;
             gameState.currentPhoto = null;
@@ -483,9 +483,9 @@
             submitBtn.disabled = true;
             submitBtn.style.display = 'block';
             nextLevelBtn.style.display = 'none';
+            bossBtn.style.display = 'none'; // 隱藏 Boss 按鈕
             takePhotoBtn.disabled = false;
             takePhotoBtn.textContent = "📸 CAPTURE";
-            
             startTimer(timeLimit);
         }
         
@@ -493,7 +493,6 @@
             if (gameState.timerInterval) clearInterval(gameState.timerInterval);
             gameState.timer = seconds;
             updateTimerDisplay();
-            
             gameState.timerInterval = setInterval(() => {
                 if (gameState.timer <= 0) {
                     clearInterval(gameState.timerInterval);
@@ -527,46 +526,29 @@
         function takePhoto() {
             if (!gameState.cameraActive) { showToast("CAMERA OFFLINE", "error"); return; }
             if (gameState.isSubmitted) { showToast("LEVEL ALREADY COMPLETED", "warning"); return; }
-            
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             gameState.currentPhoto = canvas.toDataURL('image/jpeg', 0.95);
-            
             takePhotoBtn.textContent = "📸 RETRY";
-            showToast("📸 PHOTO TAKEN! CALCULATING SIMILARITY...");
-            
+            showToast("📸 PHOTO TAKEN! CALCULATING...");
             calculateSimilarity();
         }
         
         function calculateSimilarity() {
             if (gameState.isSubmitted) return;
-            
             const baseSimilarity = 40 + Math.random() * 50;
             const attemptBonus = Math.min(15, Math.floor(Math.random() * 20));
             let similarity = Math.min(98, baseSimilarity + attemptBonus);
             similarity = Math.floor(similarity);
-            
             gameState.currentSimilarity = similarity;
             displaySimilarity(similarity);
-            
             submitBtn.disabled = false;
-            
-            if (similarity >= 90) {
-                showToast(`✅ EXCELLENT! ${similarity}% - READY TO SUBMIT`);
-            } else if (similarity >= 70) {
-                showToast(`👍 GOOD! ${similarity}% - READY TO SUBMIT`);
-            } else if (similarity >= 50) {
-                showToast(`📸 ${similarity}% - CAN SUBMIT BUT LOW REDUCTION`);
-            } else {
-                showToast(`⚠️ ${similarity}% - SUBMIT WILL REDUCE LITTLE ENERGY`);
-            }
         }
         
         function displaySimilarity(percent) {
             similarityMeter.style.display = 'block';
             similarityFill.style.width = percent + '%';
             similarityText.textContent = percent + '%';
-            
             if (percent >= 80) similarityFill.className = 'meter-fill high';
             else if (percent >= 50) similarityFill.className = 'meter-fill medium';
             else similarityFill.className = 'meter-fill low';
@@ -574,81 +556,47 @@
         
         function submitMatch() {
             if (gameState.isSubmitted) return;
-            
             let reduction = getReductionBySimilarity(gameState.currentSimilarity);
             const timeBonus = Math.min(1.5, Math.floor(gameState.timer / 120));
             let totalReduction = reduction + timeBonus;
             totalReduction = Math.min(MAX_REDUCTION_PER_LEVEL, totalReduction);
-            totalReduction = Math.min(gameState.energy, totalReduction);
-            
             gameState.energy = Math.max(0, gameState.energy - totalReduction);
             updateEnergyBar();
-            
-            let gradeText = "";
-            let messageColor = "info";
-            
-            if (gameState.currentSimilarity >= 90) {
-                gradeText = "✨ PERFECT MATCH! ✨";
-                messageColor = "success";
-            } else if (gameState.currentSimilarity >= 70) {
-                gradeText = "🌟 GOOD MATCH! 🌟";
-                messageColor = "success";
-            } else if (gameState.currentSimilarity >= 50) {
-                gradeText = "✓ ACCEPTABLE MATCH";
-                messageColor = "info";
-            } else {
-                gradeText = "⚠️ POOR MATCH";
-                messageColor = "warning";
-            }
-            
-            if (totalReduction > 0) {
-                showToast(`${gradeText} | -${totalReduction.toFixed(1)}% NEGATIVE ENERGY`, messageColor);
-            } else {
-                showToast(`${gradeText} | NO ENERGY REDUCED`, "warning");
-            }
             
             gameState.isSubmitted = true;
             gameState.levelCompleted = true;
             takePhotoBtn.disabled = true;
             submitBtn.disabled = true;
-            
             if (gameState.timerInterval) clearInterval(gameState.timerInterval);
             
-            // 檢查是否完成所有 2 個 Level
+            // 重要修改：判斷是否為最後一關
             if (gameState.currentLevel === 2) {
                 showToast("🏆 TRIANGLE AREA COMPLETED!");
-                nextLevelBtn.textContent = "🏆 FINISH";
-                nextLevelBtn.style.display = 'block';
+                bossBtn.style.display = 'block'; // 顯示進入 Boss 戰按鈕
             } else {
                 nextLevelBtn.style.display = 'block';
                 nextLevelBtn.textContent = "⏭ NEXT LEVEL";
             }
         }
+
+        // 跳轉到你提供的新頁面
+        function goToBoss() {
+            showToast("🚀 INITIATING BOSS BATTLE...");
+            setTimeout(() => {
+                // 假設你的第二個頁面檔案名稱為 boss.html
+                window.location.href = 'boss.html'; 
+            }, 1000);
+        }
         
         function updateEnergyBar() {
             energyFill.style.width = gameState.energy + '%';
             energyPercent.textContent = Math.floor(gameState.energy) + '%';
-            if (gameState.energy <= 30) energyFill.style.background = "linear-gradient(90deg, #888, #333)";
-            if (gameState.energy <= 10) energyFill.style.background = "#333";
         }
         
         function nextLevel() {
             if (gameState.currentLevel < 2) {
                 gameState.currentLevel++;
-                gameState.isSubmitted = false;
-                gameState.levelCompleted = false;
-                gameState.currentPhoto = null;
-                gameState.currentSimilarity = 0;
-                similarityMeter.style.display = 'none';
-                submitBtn.disabled = true;
-                nextLevelBtn.style.display = 'none';
-                takePhotoBtn.disabled = false;
-                takePhotoBtn.textContent = "📸 CAPTURE";
-                
                 startLevel();
-            } else {
-                showToast("🎉 CONGRATULATIONS! MISSION COMPLETE!");
-                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
             }
         }
         
@@ -656,12 +604,9 @@
             const toast = document.getElementById('toast');
             toast.textContent = msg;
             toast.className = 'toast show';
-            if (type === "error") toast.style.background = "rgba(200, 0, 0, 0.9)";
-            else if (type === "warning") toast.style.background = "rgba(255, 102, 0, 0.9)";
-            else toast.style.background = "rgba(0, 0, 0, 0.9)";
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
-        
+
         window.addEventListener('beforeunload', () => {
             if (gameState.camera) gameState.camera.getTracks().forEach(t => t.stop());
             if (gameState.timerInterval) clearInterval(gameState.timerInterval);
