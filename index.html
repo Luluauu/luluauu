@@ -7,6 +7,18 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
+        /* 定義圖片中的核心顏色變量 */
+        :root {
+            --color-bg-deep: #2c2c2e; /* 來自色板右側的深灰色 */
+            --color-bg-main: #3b3a3c; /* 來自色板中間偏右的灰色 */
+            --color-text-main: #f5f5f7; /* 用於暗背景的亮灰色 */
+            --color-text-dim: #c8c8c8; /* 用於暗背景的次要灰色 */
+            --color-accent-blood: #880101; /* 來自色板最左側的鮮血紅 */
+            --color-accent-deepred: #602B2C; /* 來自色板中間偏左的深紅褐色 */
+            --color-border-main: #585856; /* 來自色板右側的邊框灰 */
+            --color-energy-fill: #A32626; /* 用於能量條的警示紅 */
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -19,41 +31,43 @@
             overflow: hidden;
             position: fixed;
             font-family: 'Orbitron', sans-serif;
-            background: #fff;
-            color: #333;
+            background: var(--color-bg-deep); /* 使用色板深灰作為總背景 */
+            color: var(--color-text-main);
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 白色主題背景 */
+        /* 修改為暗色調背景 */
         .cyber-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+            background: linear-gradient(135deg, var(--color-bg-deep) 0%, var(--color-bg-main) 100%);
             z-index: -2;
         }
 
+        /* 能量波修改為暗色調中的紅色脈衝 */
         .energy-wave {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.05) 0%, transparent 70%);
+            background: radial-gradient(circle at 50% 50%, rgba(136, 1, 1, 0.15) 0%, transparent 70%);
             animation: energyPulse 4s ease-in-out infinite;
             pointer-events: none;
             z-index: -1;
         }
 
+        /* 掃描線顏色淡化，更符合暗色主題 */
         .scan-line {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.02) 0px, rgba(0, 0, 0, 0.02) 2px, transparent 2px, transparent 4px);
+            background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.01) 0px, rgba(255, 255, 255, 0.01) 2px, transparent 2px, transparent 4px);
             pointer-events: none;
             z-index: 10;
         }
@@ -72,28 +86,34 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* 狀態欄：暗色背景，紅色邊框，更具攻擊性 */
         .status-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #333;
+            background: rgba(44, 44, 46, 0.9); /* 使用 var(--color-bg-deep) */
+            border: 2px solid var(--color-accent-blood); /* 使用色板最左紅色 */
             margin-bottom: 15px;
             position: relative;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 0 15px rgba(136, 1, 1, 0.3); /* 紅色光暈 */
         }
         .status-bar::before {
             content: 'MISSION';
             position: absolute;
-            top: -8px;
+            top: -10px;
             left: 10px;
-            background: #fff;
+            background: var(--color-bg-deep);
             padding: 0 8px;
-            color: #333;
-            font-size: 10px;
+            color: var(--color-accent-blood); /* 紅色標籤文字 */
+            font-size: 11px;
             font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .level-info span {
+            color: var(--color-text-main);
         }
 
         .energy-container {
@@ -105,62 +125,70 @@
             justify-content: space-between;
             font-size: 12px;
             margin-bottom: 5px;
-            color: #333;
+            color: var(--color-text-main);
             font-weight: bold;
+        }
+        .energy-label span:first-child {
+            color: var(--color-accent-blood); /* "⚡ NEGATIVE ENERGY" 文字變紅 */
         }
         .energy-bar-bg {
             width: 100%;
             height: 20px;
-            background: #e0e0e0;
-            border: 1px solid #333;
+            background: #111; /* 更深的背景色 */
+            border: 1px solid var(--color-border-main);
             overflow: hidden;
         }
+        /* 能量填充：使用警示紅與深紅的漸變 */
         .energy-fill {
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #666, #333);
+            background: linear-gradient(90deg, var(--color-energy-fill), var(--color-accent-deepred));
             transition: width 0.3s ease;
         }
 
+        /* 區域標題：暗紅褐色背景，增加神秘感 */
         .location-header {
             text-align: center;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.05);
-            border: 1px solid #333;
+            background: rgba(96, 43, 44, 0.3); /* 使用 var(--color-accent-deepred) 透明化 */
+            border: 1px solid var(--color-border-main);
             margin-bottom: 15px;
             flex-shrink: 0;
         }
         .location-name {
             font-size: 24px;
             letter-spacing: 3px;
-            color: #333;
+            color: var(--color-text-main);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* 文字發光 */
         }
         .level-badge {
             font-size: 14px;
-            color: #666;
+            color: var(--color-text-dim);
             margin-top: 5px;
         }
 
+        /* 計時器：文字顏色變為鮮紅色 */
         .timer {
             font-size: 48px;
             font-weight: 900;
-            color: #333;
-            text-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            color: var(--color-accent-blood);
+            text-shadow: 0 0 20px rgba(136, 1, 1, 0.8); /* 強烈紅色發光 */
             text-align: center;
             margin-bottom: 15px;
             flex-shrink: 0;
         }
 
+        /* 區域卡片：暗灰色背景，灰色邊框 */
         .area-card {
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #333;
+            background: rgba(59, 58, 60, 0.9); /* 使用 var(--color-bg-main) */
+            border: 1px solid var(--color-border-main);
             padding: 15px;
             margin-bottom: 15px;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         .section-title {
-            color: #333;
+            color: var(--color-text-dim);
             margin-bottom: 10px;
             font-size: 16px;
             letter-spacing: 2px;
@@ -169,8 +197,8 @@
         .image-container {
             width: 100%;
             aspect-ratio: 4/3;
-            background: #f0f0f0;
-            border: 1px solid #ccc;
+            background: #111; /* 圖片容器背景加深 */
+            border: 1px solid var(--color-border-main);
             overflow: hidden;
             margin-bottom: 10px;
         }
@@ -179,6 +207,7 @@
             height: 100%;
             object-fit: cover;
         }
+        /* 佔位符：顏色變暗，圖標變為暗紅色 */
         .placeholder {
             width: 100%;
             height: 100%;
@@ -186,22 +215,26 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: #999;
-            background: #fafafa;
+            color: var(--color-text-dim);
+            background: #1a1a1c; /* 更深的灰色佔位背景 */
         }
-        .placeholder i { font-size: 40px; color: #333; opacity: 0.3; }
+        .placeholder i { font-size: 40px; color: var(--color-accent-deepred); opacity: 0.8; }
 
+        /* 配對率計：邊框顏色變暗 */
         .similarity-meter {
             margin-top: 10px;
             padding: 10px;
-            background: rgba(0, 0, 0, 0.05);
-            border: 1px solid #ccc;
+            background: rgba(0, 0, 0, 0.3); /* 更深的計量背景 */
+            border: 1px solid var(--color-border-main);
+        }
+        .meter-label {
+            color: var(--color-text-dim);
         }
         .meter-bar {
             width: 100%;
             height: 12px;
-            background: #e0e0e0;
-            border: 1px solid #ccc;
+            background: #111; /* 更深的條形背景 */
+            border: 1px solid var(--color-border-main);
             overflow: hidden;
             margin: 5px 0;
         }
@@ -209,17 +242,19 @@
             height: 100%;
             transition: width 0.3s ease;
         }
-        .meter-fill.high { background: #333; }
-        .meter-fill.medium { background: #666; }
-        .meter-fill.low { background: #999; }
+        /* 配對率條：使用色板中的不同深紅/灰色 */
+        .meter-fill.high { background: var(--color-accent-blood); } /* 高：色板鮮紅 */
+        .meter-fill.medium { background: var(--color-accent-deepred); } /* 中：色板深紅褐 */
+        .meter-fill.low { background: #555; } /* 低：灰色 */
 
+        /* 按鈕：改為深色背景，灰色邊框，紅色文字 */
         .btn {
             width: 100%;
             padding: 15px;
             font-size: 16px;
-            border: 2px solid #333;
-            background: transparent;
-            color: #333;
+            border: 2px solid var(--color-border-main);
+            background: #2a2a2c; /* 按鈕深背景色 */
+            color: var(--color-text-dim);
             cursor: pointer;
             font-weight: 700;
             letter-spacing: 2px;
@@ -228,21 +263,23 @@
             margin-top: 10px;
             -webkit-appearance: none;
         }
-        .btn:active { background: #333; color: white; transform: scale(0.98); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* 按鈕啟動：背景變為鮮紅，文字變白 */
+        .btn:active { background: var(--color-accent-blood); color: #fff; transform: scale(0.98); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: #555; }
 
-        /* BOSS 戰專用按鈕樣式 - 紅色警告風格 */
+        /* Boss 按鈕：保持原本的鮮紅警示，但強調紅色光暈 */
         #bossBtn {
-            background: #ff0000;
+            background: var(--color-accent-blood);
             color: #ffffff;
-            border: 2px solid #000;
+            border: 2px solid #fff;
             display: none;
             animation: pulseWarning 1.5s infinite;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
         @keyframes pulseWarning {
-            0% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
-            100% { box-shadow: 0 0 0 0px rgba(255, 0, 0, 0); }
+            0% { box-shadow: 0 0 0 0px rgba(136, 1, 1, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(136, 1, 1, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(136, 1, 1, 0); }
         }
 
         #video {
@@ -263,6 +300,7 @@
             margin-top: 0;
         }
 
+        /* 退出按鈕：暗灰色背景，灰色文字，紅色邊框 */
         .back-button {
             position: fixed;
             top: 15px;
@@ -270,12 +308,14 @@
             z-index: 100;
         }
         .back-button a {
-            color: #333;
+            color: var(--color-text-dim);
             text-decoration: none;
-            border: 1px solid #333;
+            border: 2px solid var(--color-accent-blood); /* 紅色邊框 */
             padding: 8px 12px;
             font-size: 12px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(44, 44, 46, 0.9);
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(136, 1, 1, 0.3);
         }
 
         .bottom-buttons {
@@ -284,12 +324,13 @@
             flex-shrink: 0;
         }
 
+        /* 吐司通知：保持暗色，白色邊框，紅色文字警示 */
         .toast {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(10, 10, 12, 0.95);
             border: 2px solid #fff;
             padding: 15px 25px;
             font-size: 16px;
@@ -297,13 +338,15 @@
             display: none;
             text-align: center;
             white-space: nowrap;
-            color: white;
+            color: var(--color-accent-blood); /* 文字變為鮮紅 */
+            font-weight: bold;
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
         }
         .toast.show { display: block; animation: fadeIn 0.3s ease; }
 
         @keyframes energyPulse {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.02); }
+            0%, 100% { opacity: 0.15; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.02); }
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
@@ -314,8 +357,9 @@
             0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)}
         }
 
-        #cameraStatus.online { color: #00aa00; }
-        #cameraStatus.offline { color: #333; }
+        /* 相機狀態顏色修改：在暗場中鮮綠色 */
+        #cameraStatus.online { color: #33ff33; text-shadow: 0 0 5px #33ff33; }
+        #cameraStatus.offline { color: var(--color-text-dim); }
     </style>
 </head>
 <body>
@@ -354,7 +398,7 @@
         <div class="similarity-meter" id="similarityMeter" style="display:none">
             <div class="meter-label">MATCH RATE</div>
             <div class="meter-bar"><div class="meter-fill" id="similarityFill" style="width:0%"></div></div>
-            <div id="similarityText" style="text-align:center; margin-top:5px; color:#333">0%</div>
+            <div id="similarityText" style="text-align:center; margin-top:5px; color:var(--color-text-dim);">0%</div>
         </div>
 
         <div class="area-card" id="cameraArea">
@@ -373,7 +417,6 @@
 
         <div class="bottom-buttons">
             <button class="btn" id="nextLevelBtn" onclick="nextLevel()" style="display:none">⏭ NEXT LEVEL</button>
-            <!-- 新增 Boss 戰按鈕 -->
             <button class="btn" id="bossBtn" onclick="goToBoss()">🔥 FIGHT BOSS 🔥</button>
         </div>
     </div>
@@ -381,7 +424,7 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // ========== 第五關卡設定 ==========
+        // ========== 邏輯保持不變 ==========
         const LEVEL_IMAGES = [
             "https://i.postimg.cc/K19QgPF4/IMG-9859.jpg",
             "https://i.postimg.cc/pyDZBbxs/IMG-9861.jpg"
@@ -426,7 +469,7 @@
         const takePhotoBtn = document.getElementById('takePhotoBtn');
         const submitBtn = document.getElementById('submitBtn');
         const nextLevelBtn = document.getElementById('nextLevelBtn');
-        const bossBtn = document.getElementById('bossBtn'); // 取得 Boss 按鈕
+        const bossBtn = document.getElementById('bossBtn'); 
         const timerDisplay = document.getElementById('timer');
         const levelInfo = document.getElementById('levelInfo');
         const energyFill = document.getElementById('energyFill');
@@ -457,7 +500,7 @@
                 const cameraStatus = document.getElementById('cameraStatus');
                 if (cameraStatus) {
                     cameraStatus.textContent = 'ONLINE';
-                    cameraStatus.style.color = '#00aa00';
+                    cameraStatus.className = 'online';
                 }
                 if (takePhotoBtn) takePhotoBtn.disabled = false;
                 showToast("✅ CAMERA READY");
@@ -483,7 +526,7 @@
             submitBtn.disabled = true;
             submitBtn.style.display = 'block';
             nextLevelBtn.style.display = 'none';
-            bossBtn.style.display = 'none'; // 隱藏 Boss 按鈕
+            bossBtn.style.display = 'none'; 
             takePhotoBtn.disabled = false;
             takePhotoBtn.textContent = "📸 CAPTURE";
             startTimer(timeLimit);
@@ -510,8 +553,9 @@
             const mins = Math.floor(gameState.timer / 60);
             const secs = gameState.timer % 60;
             timerDisplay.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-            if (gameState.timer <= 10) timerDisplay.style.color = "#ff6600";
-            else timerDisplay.style.color = "#333";
+            // 暗場中倒數顏色鮮豔化
+            if (gameState.timer <= 10) timerDisplay.style.color = "#ffdd00"; /* 時間緊迫變黃 */
+            else timerDisplay.style.color = "var(--color-accent-blood)";
         }
         
         function handleTimeout() {
@@ -569,21 +613,18 @@
             submitBtn.disabled = true;
             if (gameState.timerInterval) clearInterval(gameState.timerInterval);
             
-            // 重要修改：判斷是否為最後一關
             if (gameState.currentLevel === 2) {
                 showToast("🏆 TRIANGLE AREA COMPLETED!");
-                bossBtn.style.display = 'block'; // 顯示進入 Boss 戰按鈕
+                bossBtn.style.display = 'block'; 
             } else {
                 nextLevelBtn.style.display = 'block';
                 nextLevelBtn.textContent = "⏭ NEXT LEVEL";
             }
         }
 
-        // 跳轉到你提供的新頁面
         function goToBoss() {
             showToast("🚀 INITIATING BOSS BATTLE...");
             setTimeout(() => {
-                // 假設你的第二個頁面檔案名稱為 boss.html
                 window.location.href = 'boss.html'; 
             }, 1000);
         }
