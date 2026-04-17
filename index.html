@@ -1,23 +1,20 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>PIXEL MATCH - 八位元任務</title>
+    <title>Match AR! - TRIANGLE MISSION // PIXEL EDITION</title>
     <style>
-        /* 像素風必備：復古字體與無鋸齒渲染 */
+        /* 像素风重置 & 深红+灰主色调 */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            /* 關鍵：強制像素化渲染 */
-            image-rendering: pixelated;
             image-rendering: crisp-edges;
-            image-rendering: pixelated; /* for Chrome */
-            image-rendering: crisp-edges; /* for Firefox */
-            image-rendering: pixelated; /* for modern browsers */
+            image-rendering: pixelated;
+            image-rendering: pixelated;
         }
 
         html, body {
@@ -25,171 +22,192 @@
             height: 100%;
             overflow: hidden;
             position: fixed;
-            font-family: 'Press Start 2P', cursive, monospace;
-            background: #0a0c12; /* 極深灰藍背景，模仿老式CRT */
-            color: #b0f0ff;      /* 像素青 */
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            background: #1a0b0b;  /* 深黑红基底 */
+            color: #d9c8b2;        /* 灰米色文字 */
             -webkit-tap-highlight-color: transparent;
-            font-size: 12px;     /* 基準字體小一點，維持像素感 */
         }
 
-        /* 復古掃描線與網格 */
-        .pixel-scan {
+        /* 像素噪点背景 + 深红色调网格 */
+        .cyber-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0, 255, 255, 0.03) 0px, rgba(0, 255, 255, 0.03) 2px, transparent 2px, transparent 4px);
-            pointer-events: none;
-            z-index: 15;
+            background: repeating-linear-gradient(
+                0deg,
+                #2a1212 0px, #2a1212 2px,
+                #1f0c0c 2px, #1f0c0c 4px
+            );
+            z-index: -2;
         }
 
-        .pixel-grid {
+        /* 扫描线 + 红色像素波纹 */
+        .energy-wave {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                linear-gradient(to right, rgba(80, 200, 255, 0.08) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(80, 200, 255, 0.08) 1px, transparent 1px);
-            background-size: 12px 12px;
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(180, 40, 40, 0.08) 0px,
+                rgba(180, 40, 40, 0.08) 2px,
+                transparent 2px,
+                transparent 8px
+            );
             pointer-events: none;
-            z-index: 14;
+            z-index: -1;
+            animation: pixelShift 8s steps(4) infinite;
         }
 
-        /* CRT 類比發光效果 */
-        .crt-glow {
+        /* 传统扫描线 */
+        .scan-line {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 200, 0.05) 0%, transparent 80%);
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 2px, transparent 2px, transparent 4px);
             pointer-events: none;
-            z-index: 13;
-            animation: flicker 0.15s infinite alternate;
+            z-index: 10;
         }
 
-        @keyframes flicker {
-            0% { opacity: 0.4; }
-            100% { opacity: 0.7; }
-        }
-
+        /* 游戏容器 - 像素硬边滚动 */
         .game-container {
             width: 100vw;
             height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 16px 12px;
-            padding-bottom: 70px;
+            padding: 12px;
+            padding-bottom: 60px;
             position: relative;
-            z-index: 20;
+            z-index: 1;
             display: flex;
             flex-direction: column;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 像素面板 — 粗邊框 + 內陰影模仿 8-bit 風格 */
-        .pixel-panel {
-            background: #0f121f;
-            border: 3px solid #2fbfdf;
-            border-style: solid;
-            box-shadow: inset 0 0 0 1px #1f7f9f, 3px 3px 0px 0px #00000066;
-            padding: 12px;
-            margin-bottom: 14px;
-        }
-
+        /* 状态栏 - 像素边框 */
         .status-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 12px 15px;
+            background: #201010;
+            border: 3px solid #7a2e2e;
+            margin-bottom: 18px;
+            position: relative;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 0 1px #4a1e1e, 4px 4px 0 #0a0303;
         }
-        .level-info span {
+        .status-bar::before {
+            content: 'MISSION';
+            position: absolute;
+            top: -12px;
+            left: 12px;
+            background: #201010;
+            padding: 0 8px;
+            color: #e67e7e;
             font-size: 10px;
+            font-weight: normal;
             letter-spacing: 1px;
-            background: #00000066;
-            padding: 4px 6px;
+            border-left: 2px solid #7a2e2e;
+            border-right: 2px solid #7a2e2e;
         }
 
         .energy-container {
-            margin-bottom: 14px;
+            margin-bottom: 18px;
+            flex-shrink: 0;
         }
         .energy-label {
             display: flex;
             justify-content: space-between;
             font-size: 10px;
             margin-bottom: 6px;
-            color: #ffb347;
-            font-weight: bold;
+            color: #cfa7a7;
+            letter-spacing: 1px;
         }
         .energy-bar-bg {
             width: 100%;
-            height: 14px;
-            background: #1e1f2c;
-            border: 2px solid #4a6a7a;
-            box-shadow: inset 0 0 0 1px #000;
+            height: 18px;
+            background: #2b1515;
+            border: 2px solid #611e1e;
+            image-rendering: crisp-edges;
         }
         .energy-fill {
             width: 100%;
             height: 100%;
-            background: #ff5f3f;  /* 像素橘紅 */
-            transition: width 0.2s steps(6);
-            box-shadow: inset 0 0 4px #ffaa88;
+            background: repeating-linear-gradient(90deg, #a33, #a33 6px, #c44 6px, #c44 12px);
+            transition: width 0.15s step-end;
         }
 
         .location-header {
             text-align: center;
-            background: #0a1022;
-            border-color: #ffaa66;
+            padding: 14px;
+            background: #1e0c0c;
+            border: 3px solid #7a2e2e;
+            margin-bottom: 18px;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 0 2px #3a1717, 3px 3px 0 #0a0303;
         }
         .location-name {
             font-size: 18px;
             letter-spacing: 2px;
-            color: #ffcc77;
-            text-shadow: 2px 2px 0 #4a1a2a;
+            color: #e38b8b;
+            text-shadow: 2px 2px 0 #4a1a1a;
         }
         .level-badge {
             font-size: 9px;
+            color: #b57c7c;
             margin-top: 8px;
-            color: #9fd3ff;
         }
 
         .timer {
             font-size: 32px;
-            font-weight: bold;
-            color: #f7d44a;
-            text-shadow: 3px 3px 0 #aa2e1e;
+            font-weight: normal;
+            color: #eab4b4;
+            text-shadow: 3px 3px 0 #3d1414;
             text-align: center;
-            margin-bottom: 12px;
-            letter-spacing: 3px;
+            margin-bottom: 14px;
+            flex-shrink: 0;
+            letter-spacing: 4px;
         }
 
+        /* 像素卡片 */
+        .area-card {
+            background: #1c0c0c;
+            border: 3px solid #712828;
+            padding: 14px;
+            margin-bottom: 18px;
+            flex-shrink: 0;
+            box-shadow: 5px 5px 0 #0a0303;
+        }
         .section-title {
-            color: #ffcc88;
-            margin-bottom: 10px;
-            font-size: 11px;
-            letter-spacing: 1px;
-            border-left: 4px solid #ff9966;
+            color: #db9d9d;
+            margin-bottom: 12px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            font-weight: normal;
+            border-left: 6px solid #aa3a3a;
             padding-left: 8px;
         }
-
         .image-container {
             width: 100%;
             aspect-ratio: 4/3;
-            background: #03050b;
-            border: 3px solid #3a7b8c;
+            background: #0e0606;
+            border: 2px solid #5e2121;
             overflow: hidden;
-            position: relative;
-            box-shadow: inset 0 0 0 2px #00000044;
+            margin-bottom: 10px;
+            image-rendering: pixelated;
         }
-        .image-container img, .image-container video {
+        .image-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             image-rendering: pixelated;
         }
-
         .placeholder {
             width: 100%;
             height: 100%;
@@ -197,214 +215,207 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #0a0e1a;
-            color: #6e8f9f;
-            font-size: 10px;
+            color: #9e6a6a;
+            background: #160a0a;
+            font-size: 12px;
         }
-        .placeholder i {
-            font-size: 28px;
-            display: inline-block;
-            font-style: normal;
-            filter: drop-shadow(0 0 2px cyan);
-        }
+        .placeholder i { font-size: 36px; color: #b15555; opacity: 0.6; display: inline-block; }
 
-        /* 像素計量條 */
         .similarity-meter {
-            margin-top: 8px;
-            background: #0d1020;
-            border: 2px solid #3f8faf;
-            padding: 8px;
-        }
-        .meter-label {
-            font-size: 9px;
-            color: #ffbb88;
+            margin-top: 12px;
+            padding: 10px;
+            background: #1b0b0b;
+            border: 2px solid #642424;
         }
         .meter-bar {
             width: 100%;
-            height: 10px;
-            background: #10141f;
-            border: 2px solid #6a8a9a;
-            margin: 5px 0;
+            height: 14px;
+            background: #2a1212;
+            border: 2px solid #531e1e;
+            margin: 8px 0;
         }
         .meter-fill {
             height: 100%;
-            transition: width 0.15s steps(8);
+            transition: width 0.1s steps(10);
         }
-        .meter-fill.high { background: #77ff77; box-shadow: 0 0 2px #00ff00; }
-        .meter-fill.medium { background: #ffdd77; }
-        .meter-fill.low { background: #ff8866; }
+        .meter-fill.high { background: #bd5b5b; box-shadow: inset 0 0 0 1px #e69393; }
+        .meter-fill.medium { background: #9e4949; }
+        .meter-fill.low { background: #6e3535; }
 
-        /* 像素按鈕 */
+        /* 像素按钮 */
         .btn {
             width: 100%;
-            padding: 12px 8px;
-            font-size: 11px;
-            font-family: 'Press Start 2P', monospace;
-            background: #1f2937;
-            border: 3px solid #5fafcf;
-            color: #dfefff;
+            padding: 14px;
+            font-size: 12px;
+            border: 3px solid #832e2e;
+            background: #261010;
+            color: #eec2c2;
             cursor: pointer;
+            font-weight: normal;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            margin-top: 10px;
-            transition: 0.05s linear;
-            box-shadow: inset -2px -2px 0px #0f1a22, inset 2px 2px 0px #8fcbff;
+            transition: all 0.05s linear;
+            margin-top: 12px;
+            font-family: 'Press Start 2P', monospace;
+            -webkit-appearance: none;
+            box-shadow: 3px 3px 0 #270a0a;
         }
-        .btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: inset 2px 2px 0px #0f1a22;
+        .btn:active { background: #411b1b; transform: translate(2px, 2px); box-shadow: 1px 1px 0 #270a0a; border-color: #a54343; }
+        .btn:disabled { opacity: 0.5; transform: none; cursor: not-allowed; background: #2f1717; border-color: #5c2a2a;}
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
         }
-        .btn:disabled {
-            opacity: 0.5;
-            transform: none;
-            filter: grayscale(0.3);
-            cursor: not-allowed;
-        }
+        #video.visible { display: block; }
 
         .photo-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             margin-top: 12px;
         }
         .photo-actions .btn {
+            flex: 1;
             margin-top: 0;
-        }
-
-        /* BOSS 戰按鈕像素閃爍 */
-        #bossBtn {
-            background: #aa2e2e;
-            border-color: #ffaa66;
-            color: #ffffaa;
-            animation: pixelBlink 0.8s steps(2) infinite;
-            display: none;
-        }
-        @keyframes pixelBlink {
-            0% { border-color: #ffaa66; background: #aa2e2e; }
-            50% { border-color: #ffdd88; background: #cc4444; }
-            100% { border-color: #ffaa66; background: #aa2e2e; }
         }
 
         .back-button {
             position: fixed;
-            top: 12px;
-            left: 8px;
-            z-index: 200;
+            top: 14px;
+            left: 14px;
+            z-index: 100;
         }
         .back-button a {
-            color: #7fdfbf;
+            color: #ddafaf;
             text-decoration: none;
-            font-size: 9px;
-            background: #0f1222;
-            border: 2px solid #2fafaf;
-            padding: 5px 8px;
+            border: 2px solid #942e2e;
+            padding: 6px 10px;
+            font-size: 10px;
+            background: #1f0c0c;
             font-family: 'Press Start 2P', monospace;
+            box-shadow: 2px 2px 0 #1f0303;
         }
 
+        .bottom-buttons {
+            margin-top: 8px;
+            margin-bottom: 28px;
+            flex-shrink: 0;
+        }
+
+        /* 像素toast */
         .toast {
             position: fixed;
-            bottom: 30px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background: #01010b;
-            border: 3px solid #ffbb66;
-            padding: 8px 16px;
-            font-size: 10px;
+            transform: translate(-50%, -50%);
+            background: #1e0b0b;
+            border: 4px solid #b54b4b;
+            padding: 14px 22px;
+            font-size: 11px;
             z-index: 1000;
             display: none;
             text-align: center;
             white-space: nowrap;
-            color: #ffdd99;
-            font-family: monospace;
-            box-shadow: 4px 4px 0 #2a2a2a;
+            color: #fad2d2;
+            font-family: 'Press Start 2P', monospace;
+            box-shadow: 8px 8px 0 #2a0a0a;
+            letter-spacing: 1px;
         }
-        .toast.show { display: block; animation: pixelToast 0.2s steps(3); }
-        @keyframes pixelToast {
-            from { opacity: 0; bottom: 10px; }
-            to { opacity: 1; bottom: 30px; }
+        .toast.show { display: block; animation: pixelFade 0.2s steps(4); }
+
+        @keyframes pixelShift {
+            0% { background-position: 0 0; }
+            100% { background-position: 8px 0; }
+        }
+        @keyframes pixelFade {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9);}
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1);}
         }
 
-        /* 相機狀態 */
-        #cameraStatus.online { color: #66ff66; text-shadow: 0 0 2px #00ff00; }
-        #cameraStatus.offline { color: #cc8866; }
+        #cameraStatus.online { color: #c67a7a; }
+        #cameraStatus.offline { color: #a45151; }
 
-        /* 自適應捲軸隱藏 (保持乾淨) */
-        .game-container::-webkit-scrollbar {
+        /* 自定义滚动条 - 像素块 */
+        ::-webkit-scrollbar {
             width: 8px;
-            background: #03050b;
+            background: #1f0c0c;
         }
-        .game-container::-webkit-scrollbar-thumb {
-            background: #3f7f9f;
-            border: 1px solid #0f1f2f;
+        ::-webkit-scrollbar-thumb {
+            background: #8c3434;
+            border: 1px solid #411717;
         }
     </style>
 </head>
 <body>
-    <div class="pixel-scan"></div>
-    <div class="pixel-grid"></div>
-    <div class="crt-glow"></div>
+    <div class="cyber-bg"></div>
+    <div class="energy-wave"></div>
+    <div class="scan-line"></div>
 
-    <div class="back-button"><a href="index.html">◣ EXIT</a></div>
+    <div class="back-button"><a href="index.html">← EXIT</a></div>
 
     <div class="game-container">
-        <div class="pixel-panel status-bar">
-            <div class="level-info"><span>⚡ PIXEL ZONE</span></div>
-            <div class="timer" id="timer">--:--</div>
+        <div class="status-bar">
+            <div class="level-info">
+                <span id="currentLocation">TRIANGLE</span>
+            </div>
+            <div class="timer" id="timer">--</div>
         </div>
 
         <div class="energy-container">
-            <div class="energy-label"><span>◈ NEGATIVE ENERGY ◈</span><span id="energyPercent">20%</span></div>
+            <div class="energy-label"><span>⚡ NEGATIVE ENERGY</span><span id="energyPercent">20%</span></div>
             <div class="energy-bar-bg"><div class="energy-fill" id="energyFill" style="width: 20%"></div></div>
         </div>
 
-        <div class="pixel-panel location-header">
-            <div class="location-name">▲ TRIANGLE RUINS ▲</div>
-            <div class="level-badge" id="levelInfo">LV 1 / 2 | TIME 5:00</div>
+        <div class="location-header" id="locationHeader">
+            <div class="location-name">🔺 TRIANGLE AREA</div>
+            <div class="level-badge" id="levelInfo">LEVEL 1/2 | TIME: 5:00</div>
         </div>
 
-        <div class="pixel-panel">
-            <div class="section-title">🎯 TARGET SYMBOL</div>
+        <div class="area-card" id="challengeArea">
+            <div class="section-title">🎯 TARGET PHOTO</div>
             <div class="image-container" id="targetContainer">
-                <img id="targetImg" src="" alt="TARGET" style="display:none;">
-                <div class="placeholder" id="targetPlaceholder"><i>◈</i><p>LOADING DATA...</p></div>
+                <img id="targetImg" src="" alt="TARGET" style="width:100%; height:100%; object-fit:cover; display:none;">
+                <div class="placeholder" id="targetPlaceholder"><i>📸</i><p>LOADING CHALLENGE...</p></div>
             </div>
         </div>
 
         <div class="similarity-meter" id="similarityMeter" style="display:none">
-            <div class="meter-label">▼ MATCH RATE ▼</div>
+            <div class="meter-label">MATCH RATE</div>
             <div class="meter-bar"><div class="meter-fill" id="similarityFill" style="width:0%"></div></div>
-            <div id="similarityText" style="text-align:right; font-size: 10px; margin-top: 4px;">0%</div>
+            <div id="similarityText" style="text-align:center; margin-top:6px; color:#ce9696; font-size:10px">0%</div>
         </div>
 
-        <div class="pixel-panel">
-            <div class="section-title">📷 PIXEL CAMERA</div>
+        <div class="area-card" id="cameraArea">
+            <div class="section-title">📷 YOUR CAMERA</div>
             <div class="image-container">
-                <video id="video" autoplay playsinline style="display: none;"></video>
+                <video id="video" autoplay playsinline></video>
                 <canvas id="canvas" style="display:none"></canvas>
-                <div class="placeholder" id="cameraPlaceholder"><i>📺</i><p>CAMERA OFFLINE</p></div>
+                <div class="placeholder" id="cameraPlaceholder"><i>📷</i><p>CAMERA OFFLINE</p></div>
             </div>
             <div class="photo-actions">
                 <button class="btn" id="takePhotoBtn" onclick="takePhoto()" disabled>📸 CAPTURE</button>
                 <button class="btn" id="submitBtn" onclick="submitMatch()" disabled>⬆ SUBMIT</button>
             </div>
-            <div id="cameraStatus" class="offline" style="text-align:center; margin-top: 12px; font-size: 9px;">OFFLINE</div>
+            <div id="cameraStatus" style="text-align:center; margin-top:12px; font-size:9px">OFFLINE</div>
         </div>
 
         <div class="bottom-buttons">
             <button class="btn" id="nextLevelBtn" onclick="nextLevel()" style="display:none">⏭ NEXT LEVEL</button>
-            <button class="btn" id="bossBtn" onclick="goToBoss()">🔥 FIGHT BOSS 🔥</button>
         </div>
     </div>
 
     <div id="toast" class="toast"></div>
 
     <script>
-        // ========= 像素風格 AR 匹配核心 =========
-        // 使用可靠的 pixel 主題圖片 (picsum 確保載入, 加上像素感)
+        // ========== 深红像素版 - TRIANGLE MISSION ==========
         const LEVEL_IMAGES = [
-            "https://picsum.photos/id/20/400/300",   // 書籍風格
-            "https://picsum.photos/id/24/400/300"    // 古老建築
+            "https://i.postimg.cc/K19QgPF4/IMG-9859.jpg",
+            "https://i.postimg.cc/pyDZBbxs/IMG-9861.jpg"
         ];
         
-        const LEVEL_TIMES = [300, 240];   // 5分 / 4分
+        const LEVEL_TIMES = [300, 240];  // 5分钟, 4分钟
         const MAX_REDUCTION_PER_LEVEL = 4;
         
         function getReductionBySimilarity(similarity) {
@@ -433,6 +444,7 @@
             gameActive: false
         };
         
+        // DOM
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const targetImg = document.getElementById('targetImg');
@@ -443,15 +455,12 @@
         const takePhotoBtn = document.getElementById('takePhotoBtn');
         const submitBtn = document.getElementById('submitBtn');
         const nextLevelBtn = document.getElementById('nextLevelBtn');
-        const bossBtn = document.getElementById('bossBtn');
         const timerDisplay = document.getElementById('timer');
         const levelInfo = document.getElementById('levelInfo');
         const energyFill = document.getElementById('energyFill');
         const energyPercent = document.getElementById('energyPercent');
-        const cameraPlaceholderDiv = document.getElementById('cameraPlaceholder');
         
         window.addEventListener('load', () => {
-            showToast("PRESS START | ALLOW CAMERA");
             startMatching();
         });
         
@@ -462,32 +471,29 @@
         
         async function initCamera() {
             try {
-                showToast("📡 REQUESTING CAMERA...");
-                const constraints = { video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'environment' } };
+                showToast("REQUESTING CAMERA ACCESS...");
+                const constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'environment' } };
                 gameState.camera = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = gameState.camera;
                 await new Promise(resolve => { video.onloadedmetadata = () => { video.play(); resolve(); }; });
-                video.style.display = 'block';
-                if (cameraPlaceholderDiv) cameraPlaceholderDiv.style.display = 'none';
-                // 設定 canvas 尺寸並加上像素化處理
+                video.classList.add('visible');
+                const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+                if (cameraPlaceholder) cameraPlaceholder.style.display = 'none';
                 canvas.width = video.videoWidth || 640;
                 canvas.height = video.videoHeight || 480;
                 gameState.cameraActive = true;
-                const cameraStatusSpan = document.getElementById('cameraStatus');
-                if (cameraStatusSpan) {
-                    cameraStatusSpan.textContent = 'ONLINE | 8-BIT MODE';
-                    cameraStatusSpan.className = 'online';
+                const cameraStatus = document.getElementById('cameraStatus');
+                if (cameraStatus) {
+                    cameraStatus.textContent = 'ONLINE';
+                    cameraStatus.style.color = '#d18080';
                 }
                 if (takePhotoBtn) takePhotoBtn.disabled = false;
-                showToast("✅ PIXEL CAMERA READY");
+                showToast("✅ CAMERA READY");
             } catch (error) {
                 console.error("Camera error:", error);
-                showToast("❌ CAMERA BLOCKED - DEMO MODE ACTIVE");
-                gameState.cameraActive = false;
-                // 仍然允許 DEMO 模式遊玩
-                if (takePhotoBtn) takePhotoBtn.disabled = false;
-                const cameraStatusSpan = document.getElementById('cameraStatus');
-                if(cameraStatusSpan) cameraStatusSpan.textContent = 'DEMO MODE (NO CAM)';
+                showToast("❌ CAMERA ACCESS DENIED", "error");
+                const cameraStatus = document.getElementById('cameraStatus');
+                if (cameraStatus) cameraStatus.textContent = 'OFFLINE';
             }
         }
         
@@ -495,29 +501,24 @@
             const levelIdx = gameState.currentLevel - 1;
             const timeLimit = LEVEL_TIMES[levelIdx];
             const targetUrl = LEVEL_IMAGES[levelIdx];
-            targetImg.src = targetUrl;
-            targetImg.onload = () => {
-                targetImg.style.display = 'block';
-                targetPlaceholder.style.display = 'none';
-            };
-            targetImg.onerror = () => {
-                // fallback 像素佔位
-                targetImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23336699'/%3E%3Cpolygon points='50,20 80,80 20,80' fill='%23ffaa55'/%3E%3C/svg%3E";
-                targetImg.style.display = 'block';
-                targetPlaceholder.style.display = 'none';
-            };
             
-            levelInfo.innerHTML = `LV ${gameState.currentLevel}/2 | TIME ${Math.floor(timeLimit/60)}:${(timeLimit%60).toString().padStart(2,'0')}`;
+            targetImg.src = targetUrl;
+            targetImg.style.display = 'block';
+            targetPlaceholder.style.display = 'none';
+            
+            levelInfo.innerHTML = `LEVEL ${gameState.currentLevel}/2 | TIME: ${Math.floor(timeLimit/60)}:${(timeLimit%60).toString().padStart(2,'0')}`;
+            
             gameState.isSubmitted = false;
             gameState.levelCompleted = false;
             gameState.currentPhoto = null;
             gameState.currentSimilarity = 0;
             similarityMeter.style.display = 'none';
             submitBtn.disabled = true;
+            submitBtn.style.display = 'block';
             nextLevelBtn.style.display = 'none';
-            bossBtn.style.display = 'none';
-            takePhotoBtn.disabled = false;
+            takePhotoBtn.disabled = gameState.cameraActive ? false : true;
             takePhotoBtn.textContent = "📸 CAPTURE";
+            
             startTimer(timeLimit);
         }
         
@@ -525,6 +526,7 @@
             if (gameState.timerInterval) clearInterval(gameState.timerInterval);
             gameState.timer = seconds;
             updateTimerDisplay();
+            
             gameState.timerInterval = setInterval(() => {
                 if (gameState.timer <= 0) {
                     clearInterval(gameState.timerInterval);
@@ -542,12 +544,12 @@
             const mins = Math.floor(gameState.timer / 60);
             const secs = gameState.timer % 60;
             timerDisplay.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-            if (gameState.timer <= 10) timerDisplay.style.color = "#ff8866";
-            else timerDisplay.style.color = "#f7d44a";
+            if (gameState.timer <= 10) timerDisplay.style.color = "#ff8c66";
+            else timerDisplay.style.color = "#eab4b4";
         }
         
         function handleTimeout() {
-            showToast("⏰ TIME OVER! PRESS RETRY");
+            showToast("⏰ TIME'S UP! LEVEL FAILED", "error");
             gameState.levelCompleted = true;
             takePhotoBtn.disabled = true;
             submitBtn.disabled = true;
@@ -555,62 +557,53 @@
             nextLevelBtn.textContent = "🔄 RETRY LEVEL";
         }
         
-        // 拍照並像素化處理 (增強8-bit感)
         function takePhoto() {
-            if (!gameState.cameraActive) {
-                // demo mode 模擬相似度
-                const mockSimilarity = Math.floor(55 + Math.random() * 38);
-                gameState.currentSimilarity = mockSimilarity;
-                displaySimilarity(mockSimilarity);
-                submitBtn.disabled = false;
-                takePhotoBtn.textContent = "📸 RETRY";
-                showToast(`📸 DEMO CAPTURE | ${mockSimilarity}% MATCH`);
-                return;
-            }
-            if (gameState.isSubmitted) { showToast("LEVEL FINISHED", "warning"); return; }
-            if (!video.videoWidth) { showToast("CAMERA NOT READY"); return; }
+            if (!gameState.cameraActive) { showToast("CAMERA OFFLINE", "error"); return; }
+            if (gameState.isSubmitted) { showToast("LEVEL ALREADY COMPLETED", "warning"); return; }
             
             const ctx = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            if (canvas.width === 0 || canvas.height === 0) {
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+            }
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            gameState.currentPhoto = canvas.toDataURL('image/jpeg', 0.95);
             
-            // 像素化特效：縮小取樣再放大，實現像素塊效果
-            const pixelStep = 4;  // 塊大小
-            const smallW = Math.floor(canvas.width / pixelStep);
-            const smallH = Math.floor(canvas.height / pixelStep);
-            const offCanvas = document.createElement('canvas');
-            offCanvas.width = smallW;
-            offCanvas.height = smallH;
-            const offCtx = offCanvas.getContext('2d');
-            offCtx.drawImage(canvas, 0, 0, smallW, smallH);
-            // 關閉平滑放大
-            ctx.imageSmoothingEnabled = false;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(offCanvas, 0, 0, smallW, smallH, 0, 0, canvas.width, canvas.height);
-            
-            gameState.currentPhoto = canvas.toDataURL('image/jpeg', 0.7);
             takePhotoBtn.textContent = "📸 RETRY";
-            showToast("📸 PIXEL PHOTO TAKEN! ANALYZING...");
+            showToast("📸 PHOTO TAKEN! CALCULATING SIMILARITY...");
+            
             calculateSimilarity();
         }
         
         function calculateSimilarity() {
             if (gameState.isSubmitted) return;
-            // 增加一點隨機趣味，但保留策略 (模擬比對)
-            const baseSimilarity = 45 + Math.random() * 48;
-            const bonus = Math.min(12, Math.floor(Math.random() * 16));
-            let similarity = Math.min(98, baseSimilarity + bonus);
+            
+            const baseSimilarity = 40 + Math.random() * 50;
+            const attemptBonus = Math.min(15, Math.floor(Math.random() * 20));
+            let similarity = Math.min(98, baseSimilarity + attemptBonus);
             similarity = Math.floor(similarity);
+            
             gameState.currentSimilarity = similarity;
             displaySimilarity(similarity);
+            
             submitBtn.disabled = false;
+            
+            if (similarity >= 90) {
+                showToast(`✅ EXCELLENT! ${similarity}% - READY TO SUBMIT`);
+            } else if (similarity >= 70) {
+                showToast(`👍 GOOD! ${similarity}% - READY TO SUBMIT`);
+            } else if (similarity >= 50) {
+                showToast(`📸 ${similarity}% - CAN SUBMIT BUT LOW REDUCTION`);
+            } else {
+                showToast(`⚠️ ${similarity}% - SUBMIT WILL REDUCE LITTLE ENERGY`);
+            }
         }
         
         function displaySimilarity(percent) {
             similarityMeter.style.display = 'block';
             similarityFill.style.width = percent + '%';
             similarityText.textContent = percent + '%';
+            
             if (percent >= 80) similarityFill.className = 'meter-fill high';
             else if (percent >= 50) similarityFill.className = 'meter-fill medium';
             else similarityFill.className = 'meter-fill low';
@@ -618,67 +611,89 @@
         
         function submitMatch() {
             if (gameState.isSubmitted) return;
+            if (gameState.currentSimilarity === 0 && !gameState.currentPhoto) {
+                showToast("CAPTURE A PHOTO FIRST!", "warning");
+                return;
+            }
+            
             let reduction = getReductionBySimilarity(gameState.currentSimilarity);
             const timeBonus = Math.min(1.5, Math.floor(gameState.timer / 120));
             let totalReduction = reduction + timeBonus;
             totalReduction = Math.min(MAX_REDUCTION_PER_LEVEL, totalReduction);
+            totalReduction = Math.min(gameState.energy, totalReduction);
+            
             gameState.energy = Math.max(0, gameState.energy - totalReduction);
             updateEnergyBar();
+            
+            let gradeText = "";
+            if (gameState.currentSimilarity >= 90) {
+                gradeText = "✨ PERFECT MATCH! ✨";
+            } else if (gameState.currentSimilarity >= 70) {
+                gradeText = "🌟 GOOD MATCH! 🌟";
+            } else if (gameState.currentSimilarity >= 50) {
+                gradeText = "✓ ACCEPTABLE MATCH";
+            } else {
+                gradeText = "⚠️ POOR MATCH";
+            }
+            
+            if (totalReduction > 0) {
+                showToast(`${gradeText} | -${totalReduction.toFixed(1)}% NEGATIVE ENERGY`);
+            } else {
+                showToast(`${gradeText} | NO ENERGY REDUCED`, "warning");
+            }
             
             gameState.isSubmitted = true;
             gameState.levelCompleted = true;
             takePhotoBtn.disabled = true;
             submitBtn.disabled = true;
+            
             if (gameState.timerInterval) clearInterval(gameState.timerInterval);
             
-            showToast(`⚡ ENERGY -${totalReduction.toFixed(1)}% | MATCH ${gameState.currentSimilarity}%`);
-            
             if (gameState.currentLevel === 2) {
-                showToast("🏆 TRIANGLE RUINS CLEARED!");
-                bossBtn.style.display = 'block';
+                showToast("🏆 TRIANGLE AREA COMPLETED!");
+                nextLevelBtn.textContent = "🏆 FINISH";
+                nextLevelBtn.style.display = 'block';
             } else {
                 nextLevelBtn.style.display = 'block';
                 nextLevelBtn.textContent = "⏭ NEXT LEVEL";
             }
         }
         
-        function goToBoss() {
-            showToast("🔥 8-BIT BOSS ENCOUNTER...");
-            setTimeout(() => {
-                // 模擬跳轉，可自行修改成 boss.html
-                alert("⚔️ 像素魔王戰 (跳轉至 boss.html) ⚔️\n請自行建立 boss.html 延續傳奇");
-                // window.location.href = 'boss.html';
-            }, 700);
-        }
-        
         function updateEnergyBar() {
-            const val = Math.max(0, gameState.energy);
-            energyFill.style.width = val + '%';
-            energyPercent.textContent = Math.floor(val) + '%';
-            if(val <= 15) energyFill.style.background = "#ff5f3f";
-            else energyFill.style.background = "#ffaa66";
+            let percentVal = Math.floor(gameState.energy);
+            energyFill.style.width = percentVal + '%';
+            energyPercent.textContent = percentVal + '%';
+            if (gameState.energy <= 30) energyFill.style.background = "repeating-linear-gradient(90deg, #a04444, #a04444 6px, #c55 6px, #c55 12px)";
+            if (gameState.energy <= 10) energyFill.style.background = "#822828";
         }
         
         function nextLevel() {
-            if (gameState.currentLevel < 2 && gameState.isSubmitted) {
+            if (gameState.currentLevel < 2) {
                 gameState.currentLevel++;
+                gameState.isSubmitted = false;
+                gameState.levelCompleted = false;
+                gameState.currentPhoto = null;
+                gameState.currentSimilarity = 0;
+                similarityMeter.style.display = 'none';
+                submitBtn.disabled = true;
+                nextLevelBtn.style.display = 'none';
+                takePhotoBtn.disabled = gameState.cameraActive ? false : true;
+                takePhotoBtn.textContent = "📸 CAPTURE";
                 startLevel();
-            } else if (!gameState.isSubmitted && gameState.timer <= 0) {
-                // 重試同一關
-                startLevel();
-            } else if (gameState.currentLevel === 2 && gameState.isSubmitted) {
-                // 最終完成後已經顯示 Boss 按鈕, 此處不做額外
-                showToast("✔️ 已完成所有試煉，挑戰魔王吧!");
             } else {
-                // 其他情況重啟關卡
-                startLevel();
+                showToast("🎉 CONGRATULATIONS! MISSION COMPLETE!");
+                setTimeout(() => { window.location.href = 'index.html'; }, 2000);
             }
         }
         
-        function showToast(msg) {
+        function showToast(msg, type = "info") {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
-            toast.classList.add('show');
+            toast.className = 'toast show';
+            if (type === "error") toast.style.background = "#3d1515";
+            else if (type === "warning") toast.style.background = "#4a2a1a";
+            else toast.style.background = "#1e0c0c";
+            toast.style.borderColor = "#b54b4b";
             setTimeout(() => toast.classList.remove('show'), 2200);
         }
         
