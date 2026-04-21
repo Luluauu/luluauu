@@ -791,7 +791,7 @@
             targetImg.style.display = 'block';
             targetPlaceholder.style.display = 'none';
             
-            levelInfo.innerHTML = ⁠ LEVEL ${gameState.currentLevel}/2 | TIME: ${Math.floor(timeLimit/60)}:${(timeLimit%60).toString().padStart(2,'0')} ⁠;
+            levelInfo.innerHTML = `LEVEL ${gameState.currentLevel}/2 | TIME: ${Math.floor(timeLimit/60)}:${(timeLimit%60).toString().padStart(2,'0')}`;
             
             gameState.isSubmitted = false;
             gameState.levelCompleted = false;
@@ -828,7 +828,7 @@
         function updateTimerDisplay() {
             const mins = Math.floor(gameState.timer / 60);
             const secs = gameState.timer % 60;
-            timerDisplay.textContent = ⁠ ${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')} ⁠;
+            timerDisplay.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
             if (gameState.timer <= 10) timerDisplay.style.color = "#ff8c66";
             else timerDisplay.style.color = "#eab4b4";
         }
@@ -874,13 +874,13 @@
             submitBtn.disabled = false;
             
             if (similarity >= 90) {
-                showToast(⁠ ✅ EXCELLENT! ${similarity}% - READY TO SUBMIT ⁠);
+                showToast(`✅ EXCELLENT! ${similarity}% - READY TO SUBMIT`);
             } else if (similarity >= 70) {
-                showToast(⁠ 👍 GOOD! ${similarity}% - READY TO SUBMIT ⁠);
+                showToast(`👍 GOOD! ${similarity}% - READY TO SUBMIT`);
             } else if (similarity >= 50) {
-                showToast(⁠ 📸 ${similarity}% - CAN SUBMIT BUT LOW REDUCTION ⁠);
+                showToast(`📸 ${similarity}% - CAN SUBMIT BUT LOW REDUCTION`);
             } else {
-                showToast(⁠ ⚠️ ${similarity}% - SUBMIT WILL REDUCE LITTLE ENERGY ⁠);
+                showToast(`⚠️ ${similarity}% - SUBMIT WILL REDUCE LITTLE ENERGY`);
             }
         }
         
@@ -922,9 +922,9 @@
             }
             
             if (totalReduction > 0) {
-                showToast(⁠ ${gradeText} | -${totalReduction.toFixed(1)}% NEGATIVE ENERGY ⁠);
+                showToast(`${gradeText} | -${totalReduction.toFixed(1)}% NEGATIVE ENERGY`);
             } else {
-                showToast(⁠ ${gradeText} | NO ENERGY REDUCED ⁠, "warning");
+                showToast(`${gradeText} | NO ENERGY REDUCED`, "warning");
             }
             
             gameState.isSubmitted = true;
