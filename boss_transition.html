@@ -3,990 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Match AR! - TRIANGLE MISSION // PIXEL EDITION</title>
+    <title>Match AR! - Meeting Camel</title>
     <style>
-        /* 像素风重置 & 深红+灰主色调 */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            image-rendering: crisp-edges;
-            image-rendering: pixelated;
+            margin: 0; padding: 0; box-sizing: border-box;
             image-rendering: pixelated;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            position: fixed;
-            font-family: 'Press Start 2P', 'Courier New', monospace;
-            background: #1a0b0b;
+        body {
+            background-color: #1a0b0b;
             color: #d9c8b2;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* 像素噪点背景 + 深红色调网格 */
-        .cyber-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                #2a1212 0px, #2a1212 2px,
-                #1f0c0c 2px, #1f0c0c 4px
-            );
-            z-index: -2;
-        }
-
-        /* 扫描线 + 红色像素波纹 */
-        .energy-wave {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                90deg,
-                rgba(180, 40, 40, 0.08) 0px,
-                rgba(180, 40, 40, 0.08) 2px,
-                transparent 2px,
-                transparent 8px
-            );
-            pointer-events: none;
-            z-index: -1;
-            animation: pixelShift 8s steps(4) infinite;
-        }
-
-        /* 传统扫描线 */
-        .scan-line {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 2px, transparent 2px, transparent 4px);
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* 游戏容器 - 像素硬边滚动 */
-        .game-container {
-            width: 100vw;
+            font-family: 'Press Start 2P', cursive;
             height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 12px;
-            padding-bottom: 60px;
-            position: relative;
-            z-index: 1;
             display: flex;
             flex-direction: column;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* 状态栏 - 像素边框 */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            padding: 12px 15px;
-            background: #201010;
-            border: 3px solid #7a2e2e;
-            margin-bottom: 18px;
-            position: relative;
-            flex-shrink: 0;
-            box-shadow: inset 0 0 0 1px #4a1e1e, 4px 4px 0 #0a0303;
-        }
-        .status-bar::before {
-            content: 'MISSION';
-            position: absolute;
-            top: -12px;
-            left: 12px;
-            background: #201010;
-            padding: 0 8px;
-            color: #e67e7e;
-            font-size: 10px;
-            font-weight: normal;
-            letter-spacing: 1px;
-            border-left: 2px solid #7a2e2e;
-            border-right: 2px solid #7a2e2e;
-        }
-
-        .energy-container {
-            margin-bottom: 18px;
-            flex-shrink: 0;
-        }
-        .energy-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            margin-bottom: 6px;
-            color: #cfa7a7;
-            letter-spacing: 1px;
-        }
-        .energy-bar-bg {
-            width: 100%;
-            height: 18px;
-            background: #2b1515;
-            border: 2px solid #611e1e;
-            image-rendering: crisp-edges;
-        }
-        .energy-fill {
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(90deg, #a33, #a33 6px, #c44 6px, #c44 12px);
-            transition: width 0.15s step-end;
-        }
-
-        .location-header {
-            text-align: center;
-            padding: 14px;
-            background: #1e0c0c;
-            border: 3px solid #7a2e2e;
-            margin-bottom: 18px;
-            flex-shrink: 0;
-            box-shadow: inset 0 0 0 2px #3a1717, 3px 3px 0 #0a0303;
-        }
-        .location-name {
-            font-size: 18px;
-            letter-spacing: 2px;
-            color: #e38b8b;
-            text-shadow: 2px 2px 0 #4a1a1a;
-        }
-        .level-badge {
-            font-size: 9px;
-            color: #b57c7c;
-            margin-top: 8px;
-        }
-
-        .timer {
-            font-size: 32px;
-            font-weight: normal;
-            color: #eab4b4;
-            text-shadow: 3px 3px 0 #3d1414;
-            text-align: center;
-            margin-bottom: 14px;
-            flex-shrink: 0;
-            letter-spacing: 4px;
-        }
-
-        /* 像素卡片 */
-        .area-card {
-            background: #1c0c0c;
-            border: 3px solid #712828;
-            padding: 14px;
-            margin-bottom: 18px;
-            flex-shrink: 0;
-            box-shadow: 5px 5px 0 #0a0303;
-        }
-        .section-title {
-            color: #db9d9d;
-            margin-bottom: 12px;
-            font-size: 12px;
-            letter-spacing: 2px;
-            font-weight: normal;
-            border-left: 6px solid #aa3a3a;
-            padding-left: 8px;
-        }
-        .image-container {
-            width: 100%;
-            aspect-ratio: 4/3;
-            background: #0e0606;
-            border: 2px solid #5e2121;
             overflow: hidden;
-            margin-bottom: 10px;
-            image-rendering: pixelated;
+            padding: 20px;
         }
-        .image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            image-rendering: pixelated;
+
+        /* 掃描線效果延續遊戲風格 */
+        .scan-line {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px);
+            pointer-events: none; z-index: 10;
         }
-        .placeholder {
-            width: 100%;
-            height: 100%;
+
+        /* 角色圖片：幾時駱駝 */
+        .character-box {
+            flex-grow: 1;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
-            color: #9e6a6a;
-            background: #160a0a;
-            font-size: 12px;
-        }
-        .placeholder i { font-size: 36px; color: #b15555; opacity: 0.6; display: inline-block; }
-
-        .similarity-meter {
-            margin-top: 12px;
-            padding: 10px;
-            background: #1b0b0b;
-            border: 2px solid #642424;
-        }
-        .meter-bar {
             width: 100%;
-            height: 14px;
-            background: #2a1212;
-            border: 2px solid #531e1e;
-            margin: 8px 0;
-        }
-        .meter-fill {
-            height: 100%;
-            transition: width 0.1s steps(10);
-        }
-        .meter-fill.high { background: #bd5b5b; box-shadow: inset 0 0 0 1px #e69393; }
-        .meter-fill.medium { background: #9e4949; }
-        .meter-fill.low { background: #6e3535; }
-
-        /* 像素按钮 */
-        .btn {
-            width: 100%;
-            padding: 14px;
-            font-size: 12px;
-            border: 3px solid #832e2e;
-            background: #261010;
-            color: #eec2c2;
-            cursor: pointer;
-            font-weight: normal;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: all 0.05s linear;
-            margin-top: 12px;
-            font-family: 'Press Start 2P', monospace;
-            -webkit-appearance: none;
-            box-shadow: 3px 3px 0 #270a0a;
-        }
-        .btn:active { background: #411b1b; transform: translate(2px, 2px); box-shadow: 1px 1px 0 #270a0a; border-color: #a54343; }
-        .btn:disabled { opacity: 0.5; transform: none; cursor: not-allowed; background: #2f1717; border-color: #5c2a2a;}
-
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-        #video.visible { display: block; }
-
-        .photo-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .photo-actions .btn {
-            flex: 1;
-            margin-top: 0;
-        }
-
-        .back-button {
-            position: fixed;
-            top: 14px;
-            left: 14px;
-            z-index: 100;
-        }
-        .back-button a {
-            color: #ddafaf;
-            text-decoration: none;
-            border: 2px solid #942e2e;
-            padding: 6px 10px;
-            font-size: 10px;
-            background: #1f0c0c;
-            font-family: 'Press Start 2P', monospace;
-            box-shadow: 2px 2px 0 #1f0303;
-        }
-
-        .bottom-buttons {
-            margin-top: 8px;
-            margin-bottom: 28px;
-            flex-shrink: 0;
-        }
-
-        /* 像素toast */
-        .toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #1e0b0b;
-            border: 4px solid #b54b4b;
-            padding: 14px 22px;
-            font-size: 11px;
-            z-index: 1000;
-            display: none;
-            text-align: center;
-            white-space: nowrap;
-            color: #fad2d2;
-            font-family: 'Press Start 2P', monospace;
-            box-shadow: 8px 8px 0 #2a0a0a;
-            letter-spacing: 1px;
-        }
-        .toast.show { display: block; animation: pixelFade 0.2s steps(4); }
-
-        /* RPG 對話框樣式 */
-        .rpg-dialogue-container {
-            position: fixed;
-            bottom: 30px;
-            left: 5%;
-            width: 90%;
-            min-height: 160px;
-            background: rgba(30, 15, 15, 0.98);
-            border: 4px solid #8b3a3a;
-            box-shadow: 0 4px 0 -1px #5a2525, 0 -4px 0 -1px #5a2525, 4px 0 0 -1px #5a2525, -4px 0 0 -1px #5a2525;
-            padding: 15px;
-            z-index: 200;
-            border-radius: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .rpg-name-tag {
-            font-size: 14px;
-            color: white;
-            background: #8b3a3a;
-            padding: 4px 12px;
-            border: 2px solid #5a2525;
-            position: absolute;
-            top: -18px;
-            left: 15px;
-            font-family: 'Press Start 2P', monospace;
-        }
-        
-        .rpg-message {
-            font-size: 13px;
-            color: #f0d0d0;
-            line-height: 1.6;
-            margin-top: 15px;
             margin-bottom: 20px;
-            font-family: 'Press Start 2P', monospace;
-            word-break: break-word;
-            flex: 1;
-        }
-        
-        .rpg-next-btn {
-            position: absolute;
-            right: 15px;
-            bottom: 10px;
-            background: #8b3a3a;
-            border: 2px solid #5a2525;
-            color: white;
-            font-size: 14px;
-            padding: 5px 15px;
-            cursor: pointer;
-            font-family: 'Press Start 2P', monospace;
-            transition: all 0.05s linear;
-        }
-        
-        .rpg-next-btn:active {
-            transform: translate(2px, 2px);
         }
 
-        /* 彈出視窗 (Modal) */
-        .modal {
+        .character-img {
+            max-height: 60vh;
+            max-width: 90%;
+            filter: drop-shadow(0 0 10px rgba(181, 75, 75, 0.3));
+        }
+
+        /* 對話框 */
+        .dialogue-container {
+            width: 100%;
+            background: #201010;
+            border: 4px solid #7a2e2e;
+            padding: 20px;
+            position: relative;
+            box-shadow: 6px 6px 0 #0a0303;
+        }
+
+        .name-tag {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #7a2e2e;
+            color: #fad2d2;
+            padding: 5px 12px;
+            font-size: 10px;
+        }
+
+        .text-content {
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            min-height: 60px;
+        }
+
+        .action-btn {
+            float: right;
+            background: transparent;
+            color: #e67e7e;
+            border: 2px solid #7a2e2e;
+            padding: 8px 15px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .action-btn:active {
+            background: #7a2e2e;
+            color: white;
+        }
+
+        /* 彈出視窗 */
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
-            z-index: 300;
+            z-index: 100;
             justify-content: center;
             align-items: center;
         }
 
-        .modal-content {
+        .modal-box {
             background: #1e0c0c;
-            border: 6px solid #8b3a3a;
-            padding: 30px;
+            border: 4px solid #b54b4b;
             width: 85%;
+            padding: 25px;
             text-align: center;
-            box-shadow: 0 0 0 4px #2a1212, 0 0 0 8px #5a2525;
+            box-shadow: 0 0 20px rgba(181, 75, 75, 0.5);
         }
 
-        /* 道具視覺容器 */
-        .item-visual-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .item-img {
-            width: 140px;
-            height: auto;
-            z-index: 10;
-            position: relative;
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
-            animation: itemFloat 2s ease-in-out infinite;
-        }
-
-        @keyframes itemFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
-        }
-
-        /* 閃光效果 (Sparkles) */
-        .sparkle {
-            position: absolute;
-            background: radial-gradient(circle, #ffffff, #ffffaa);
-            width: 16px;
-            height: 16px;
-            clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
-            animation: blinkSparkle 0.8s infinite alternate;
-            z-index: 15;
-            box-shadow: 0 0 8px rgba(255, 255, 200, 0.9);
-        }
-
-        .s1 { top: 5%; left: 15%; animation-delay: 0.1s; }
-        .s2 { top: 15%; right: 10%; animation-delay: 0.3s; transform: scale(1.3); }
-        .s3 { bottom: 15%; left: 10%; animation-delay: 0.5s; transform: scale(1.1); }
-        .s4 { bottom: 5%; right: 15%; animation-delay: 0.2s; }
-        .s5 { top: 40%; left: -5%; animation-delay: 0.4s; transform: scale(1.5); }
-        .s6 { top: 55%; right: -8%; animation-delay: 0.6s; transform: scale(1.4); }
-        .s7 { top: 70%; left: 30%; animation-delay: 0.15s; transform: scale(0.9); }
-        .s8 { bottom: 40%; right: 25%; animation-delay: 0.45s; transform: scale(1.2); }
-        .s9 { top: 10%; right: 30%; animation-delay: 0.7s; transform: scale(1); }
-        .s10 { bottom: 10%; left: 35%; animation-delay: 0.35s; transform: scale(1.1); }
-
-        @keyframes blinkSparkle {
-            0%, 100% { transform: scale(0.2); opacity: 0; }
-            30% { transform: scale(0.8); opacity: 0.6; }
-            70% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.5); opacity: 0.3; }
-        }
-
-        /* 圓形光暈背景 */
-        .glow-bg {
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            background: radial-gradient(circle, 
-                rgba(255, 255, 150, 0.8) 0%, 
-                rgba(255, 255, 100, 0.5) 30%,
-                rgba(255, 200, 50, 0.3) 60%,
-                rgba(255, 255, 255, 0) 100%);
-            animation: pulseGlow 1.2s infinite ease-in-out;
-            z-index: 1;
-            border-radius: 50%;
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { transform: scale(1); opacity: 0.6; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
-
-        /* 旋轉光環 */
-        .rotate-ring {
-            position: absolute;
-            width: 190px;
-            height: 190px;
-            border: 2px solid rgba(255, 255, 150, 0.7);
-            border-radius: 50%;
-            animation: rotateRing 3s linear infinite;
-            z-index: 2;
-            box-shadow: 0 0 15px rgba(255, 255, 150, 0.5);
-        }
-
-        @keyframes rotateRing {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .modal-title {
-            color: #e67e7e;
-            font-size: 32px;
+        .item-get {
+            color: #ff8c66;
+            font-size: 14px;
             margin-bottom: 20px;
-            font-weight: bold;
+            display: block;
         }
 
-        .modal-body {
-            font-size: 18px;
+        .modal-text {
+            font-size: 10px;
+            line-height: 1.8;
             color: #d9c8b2;
-            line-height: 1.4;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .fight-btn {
-            background: #8b3a3a;
-            border: 3px solid #5a2525;
+            background: #b54b4b;
             color: white;
-            padding: 10px 30px;
+            border: none;
+            padding: 12px 30px;
             font-family: 'Press Start 2P', monospace;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
-            margin-top: 10px;
+            box-shadow: 4px 4px 0 #4a1a1a;
         }
 
         .fight-btn:active {
             transform: translate(2px, 2px);
-        }
-
-        @keyframes pixelShift {
-            0% { background-position: 0 0; }
-            100% { background-position: 8px 0; }
-        }
-        @keyframes pixelFade {
-            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9);}
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1);}
-        }
-
-        #cameraStatus.online { color: #c67a7a; }
-        #cameraStatus.offline { color: #a45151; }
-
-        /* 自定义滚动条 - 像素块 */
-        ::-webkit-scrollbar {
-            width: 8px;
-            background: #1f0c0c;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #8c3434;
-            border: 1px solid #411717;
+            box-shadow: 2px 2px 0 #4a1a1a;
         }
     </style>
 </head>
 <body>
-    <div class="cyber-bg"></div>
-    <div class="energy-wave"></div>
     <div class="scan-line"></div>
 
-    <div class="back-button"><a href="index.html">← EXIT</a></div>
-
-    <div class="game-container">
-        <div class="status-bar">
-            <div class="level-info">
-                <span id="currentLocation">TRIANGLE</span>
-            </div>
-            <div class="timer" id="timer">--</div>
-        </div>
-
-        <div class="energy-container">
-            <div class="energy-label"><span>⚡ NEGATIVE ENERGY</span><span id="energyPercent">20%</span></div>
-            <div class="energy-bar-bg"><div class="energy-fill" id="energyFill" style="width: 20%"></div></div>
-        </div>
-
-        <div class="location-header" id="locationHeader">
-            <div class="location-name">🔺 TRIANGLE AREA</div>
-            <div class="level-badge" id="levelInfo">LEVEL 1/2 | TIME: 5:00</div>
-        </div>
-
-        <div class="area-card" id="challengeArea">
-            <div class="section-title">🎯 TARGET PHOTO</div>
-            <div class="image-container" id="targetContainer">
-                <img id="targetImg" src="" alt="TARGET" style="width:100%; height:100%; object-fit:cover; display:none;">
-                <div class="placeholder" id="targetPlaceholder"><i>📸</i><p>LOADING CHALLENGE...</p></div>
-            </div>
-        </div>
-
-        <div class="similarity-meter" id="similarityMeter" style="display:none">
-            <div class="meter-label">MATCH RATE</div>
-            <div class="meter-bar"><div class="meter-fill" id="similarityFill" style="width:0%"></div></div>
-            <div id="similarityText" style="text-align:center; margin-top:6px; color:#ce9696; font-size:10px">0%</div>
-        </div>
-
-        <div class="area-card" id="cameraArea">
-            <div class="section-title">📷 YOUR CAMERA</div>
-            <div class="image-container">
-                <video id="video" autoplay playsinline></video>
-                <canvas id="canvas" style="display:none"></canvas>
-                <div class="placeholder" id="cameraPlaceholder"><i>📷</i><p>CAMERA OFFLINE</p></div>
-            </div>
-            <div class="photo-actions">
-                <button class="btn" id="takePhotoBtn" onclick="takePhoto()" disabled>📸 CAPTURE</button>
-                <button class="btn" id="submitBtn" onclick="submitMatch()" disabled>⬆ SUBMIT</button>
-            </div>
-            <div id="cameraStatus" style="text-align:center; margin-top:12px; font-size:9px">OFFLINE</div>
-        </div>
-
-        <div class="bottom-buttons">
-            <button class="btn" id="nextLevelBtn" onclick="nextLevel()" style="display:none">⏭ NEXT LEVEL</button>
-        </div>
+    <div class="character-box">
+        <img src="Class-Off_Camel.png" alt="Class-Off Camel" class="character-img">
     </div>
 
-    <div id="toast" class="toast"></div>
-
-    <!-- RPG 對話框（初始隱藏） -->
-    <div id="rpgDialogueContainer" class="rpg-dialogue-container" style="display: none;">
-        <div class="rpg-name-tag" id="rpgSpeakerName">幾時駱駝</div>
-        <div class="rpg-message" id="rpgMessage"></div>
-        <button class="rpg-next-btn" id="rpgNextBtn">→</button>
+    <div class="dialogue-container">
+        <div class="name-tag">幾時駱駝(Class-Off Camel)</div>
+        <div class="text-content">
+            Thank for the drink. (He's put some sugar in it) <br><br>
+            Have a drink, I've put some sugar in it for you.
+        </div>
+        <button class="action-btn" onclick="showReward()">NEXT</button>
     </div>
 
-    <!-- 獎勵彈窗 -->
-    <div class="modal" id="rewardModal">
-        <div class="modal-content">
-            <div class="item-visual-container">
-                <div class="glow-bg"></div>
-                <div class="rotate-ring"></div>
-                
-                <div class="sparkle s1"></div>
-                <div class="sparkle s2"></div>
-                <div class="sparkle s3"></div>
-                <div class="sparkle s4"></div>
-                <div class="sparkle s5"></div>
-                <div class="sparkle s6"></div>
-                <div class="sparkle s7"></div>
-                <div class="sparkle s8"></div>
-                <div class="sparkle s9"></div>
-                <div class="sparkle s10"></div>
-                
-                <img src="sugar.png" alt="Sugar" class="item-img">
-            </div>
-            
-            <div class="modal-title">‘Sugar’ Got!</div>
-            <div class="modal-body">
-                Please keep it until the final war with the villain…<br>
+    <div class="modal-overlay" id="rewardModal">
+        <div class="modal-box">
+            <span class="item-get">ITEM OBTAINED!</span>
+            <div class="modal-text">
+                Looks like an old bookmark…<br>
+                溫獅(Study Lion) must had used this for a long time.<br><br>
+                Please keep it until the final war with the villain…<br><br>
                 Please move to the next location.
             </div>
-            <button class="fight-btn" id="fightBtn">FIGHT</button>
+            <button class="fight-btn" onclick="goToBoss()">FIGHT</button>
         </div>
     </div>
 
     <script>
-        // ========== 深红像素版 - TRIANGLE MISSION ==========
-        const LEVEL_IMAGES = [
-            "https://i.postimg.cc/K19QgPF4/IMG-9859.jpg",
-            "https://i.postimg.cc/pyDZBbxs/IMG-9861.jpg"
-        ];
-        
-        const LEVEL_TIMES = [300, 240];
-        const MAX_REDUCTION_PER_LEVEL = 4;
-        
-        function getReductionBySimilarity(similarity) {
-            if (similarity >= 95) return 4.0;
-            if (similarity >= 90) return 3.5;
-            if (similarity >= 85) return 3.0;
-            if (similarity >= 80) return 2.5;
-            if (similarity >= 75) return 2.0;
-            if (similarity >= 70) return 1.5;
-            if (similarity >= 65) return 1.0;
-            if (similarity >= 60) return 0.5;
-            return 0;
+        function showReward() {
+            document.getElementById('rewardModal').style.display = 'flex';
         }
-        
-        let gameState = {
-            currentLevel: 1,
-            energy: 20,
-            timer: 0,
-            timerInterval: null,
-            camera: null,
-            cameraActive: false,
-            currentPhoto: null,
-            currentSimilarity: 0,
-            isSubmitted: false,
-            levelCompleted: false,
-            gameActive: false
-        };
-        
-        // 對話資料
-        let dialogueIndex = 0;
-        const dialogues = [
-            { speaker: "幾時駱駝", text: "Thank for the drink. (He's put some sugar in it) Have a drink, I've put some sugar in it for you." }
-        ];
-        
-        // DOM 元素
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const targetImg = document.getElementById('targetImg');
-        const targetPlaceholder = document.getElementById('targetPlaceholder');
-        const similarityMeter = document.getElementById('similarityMeter');
-        const similarityFill = document.getElementById('similarityFill');
-        const similarityText = document.getElementById('similarityText');
-        const takePhotoBtn = document.getElementById('takePhotoBtn');
-        const submitBtn = document.getElementById('submitBtn');
-        const nextLevelBtn = document.getElementById('nextLevelBtn');
-        const timerDisplay = document.getElementById('timer');
-        const levelInfo = document.getElementById('levelInfo');
-        const energyFill = document.getElementById('energyFill');
-        const energyPercent = document.getElementById('energyPercent');
-        
-        const rpgDialogueContainer = document.getElementById('rpgDialogueContainer');
-        const rpgSpeakerName = document.getElementById('rpgSpeakerName');
-        const rpgMessage = document.getElementById('rpgMessage');
-        const rpgNextBtn = document.getElementById('rpgNextBtn');
-        const rewardModal = document.getElementById('rewardModal');
-        const fightBtn = document.getElementById('fightBtn');
-        
-        // 顯示 RPG 對話框
-        function showRPGDialogue() {
-            // 隱藏遊戲主區域
-            const statusBar = document.querySelector('.status-bar');
-            const energyContainer = document.querySelector('.energy-container');
-            const locationHeader = document.getElementById('locationHeader');
-            const challengeArea = document.getElementById('challengeArea');
-            const cameraArea = document.getElementById('cameraArea');
-            const bottomButtonsDiv = document.querySelector('.bottom-buttons');
-            
-            if (statusBar) statusBar.style.display = 'none';
-            if (energyContainer) energyContainer.style.display = 'none';
-            if (locationHeader) locationHeader.style.display = 'none';
-            if (challengeArea) challengeArea.style.display = 'none';
-            if (cameraArea) cameraArea.style.display = 'none';
-            if (bottomButtonsDiv) bottomButtonsDiv.style.display = 'none';
-            
-            // 顯示對話框
-            rpgDialogueContainer.style.display = 'flex';
-            rpgSpeakerName.textContent = dialogues[0].speaker;
-            rpgMessage.textContent = dialogues[0].text;
-            
-            // 綁定下一句按鈕
-            rpgNextBtn.onclick = function() {
-                // 隱藏對話框
-                rpgDialogueContainer.style.display = 'none';
-                // 顯示獎勵彈窗
-                rewardModal.style.display = 'flex';
-            };
-        }
-        
-        // 顯示獎勵彈窗
-        function showRewardModal() {
-            rewardModal.style.display = 'flex';
-        }
-        
-        window.addEventListener('load', () => {
-            startMatching();
-        });
-        
-        async function startMatching() {
-            await initCamera();
-            startLevel();
-        }
-        
-        async function initCamera() {
-            try {
-                showToast("REQUESTING CAMERA ACCESS...");
-                const constraints = { video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'environment' } };
-                gameState.camera = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = gameState.camera;
-                await new Promise(resolve => { video.onloadedmetadata = () => { video.play(); resolve(); }; });
-                video.classList.add('visible');
-                const cameraPlaceholder = document.getElementById('cameraPlaceholder');
-                if (cameraPlaceholder) cameraPlaceholder.style.display = 'none';
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                gameState.cameraActive = true;
-                const cameraStatus = document.getElementById('cameraStatus');
-                if (cameraStatus) {
-                    cameraStatus.textContent = 'ONLINE';
-                    cameraStatus.style.color = '#d18080';
-                }
-                if (takePhotoBtn) takePhotoBtn.disabled = false;
-                showToast("✅ CAMERA READY");
-            } catch (error) {
-                console.error("Camera error:", error);
-                showToast("❌ CAMERA ACCESS DENIED", "error");
-                const cameraStatus = document.getElementById('cameraStatus');
-                if (cameraStatus) cameraStatus.textContent = 'OFFLINE';
-            }
-        }
-        
-        function startLevel() {
-            const levelIdx = gameState.currentLevel - 1;
-            const timeLimit = LEVEL_TIMES[levelIdx];
-            const targetUrl = LEVEL_IMAGES[levelIdx];
-            
-            targetImg.src = targetUrl;
-            targetImg.style.display = 'block';
-            targetPlaceholder.style.display = 'none';
-            
-            levelInfo.innerHTML = ⁠ LEVEL ${gameState.currentLevel}/2 | TIME: ${Math.floor(timeLimit/60)}:${(timeLimit%60).toString().padStart(2,'0')} ⁠;
-            
-            gameState.isSubmitted = false;
-            gameState.levelCompleted = false;
-            gameState.currentPhoto = null;
-            gameState.currentSimilarity = 0;
-            similarityMeter.style.display = 'none';
-            submitBtn.disabled = true;
-            submitBtn.style.display = 'block';
-            nextLevelBtn.style.display = 'none';
-            takePhotoBtn.disabled = gameState.cameraActive ? false : true;
-            takePhotoBtn.textContent = "📸 CAPTURE";
-            
-            startTimer(timeLimit);
-        }
-        
-        function startTimer(seconds) {
-            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-            gameState.timer = seconds;
-            updateTimerDisplay();
-            
-            gameState.timerInterval = setInterval(() => {
-                if (gameState.timer <= 0) {
-                    clearInterval(gameState.timerInterval);
-                    if (!gameState.isSubmitted && !gameState.levelCompleted) {
-                        handleTimeout();
-                    }
-                } else {
-                    gameState.timer--;
-                    updateTimerDisplay();
-                }
-            }, 1000);
-        }
-        
-        function updateTimerDisplay() {
-            const mins = Math.floor(gameState.timer / 60);
-            const secs = gameState.timer % 60;
-            timerDisplay.textContent = ⁠ ${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')} ⁠;
-            if (gameState.timer <= 10) timerDisplay.style.color = "#ff8c66";
-            else timerDisplay.style.color = "#eab4b4";
-        }
-        
-        function handleTimeout() {
-            showToast("⏰ TIME'S UP! LEVEL FAILED", "error");
-            gameState.levelCompleted = true;
-            takePhotoBtn.disabled = true;
-            submitBtn.disabled = true;
-            nextLevelBtn.style.display = 'block';
-            nextLevelBtn.textContent = "🔄 RETRY LEVEL";
-        }
-        
-        function takePhoto() {
-            if (!gameState.cameraActive) { showToast("CAMERA OFFLINE", "error"); return; }
-            if (gameState.isSubmitted) { showToast("LEVEL ALREADY COMPLETED", "warning"); return; }
-            
-            const ctx = canvas.getContext('2d');
-            if (canvas.width === 0 || canvas.height === 0) {
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-            }
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            gameState.currentPhoto = canvas.toDataURL('image/jpeg', 0.95);
-            
-            takePhotoBtn.textContent = "📸 RETRY";
-            showToast("📸 PHOTO TAKEN! CALCULATING SIMILARITY...");
-            
-            calculateSimilarity();
-        }
-        
-        function calculateSimilarity() {
-            if (gameState.isSubmitted) return;
-            
-            const baseSimilarity = 40 + Math.random() * 50;
-            const attemptBonus = Math.min(15, Math.floor(Math.random() * 20));
-            let similarity = Math.min(98, baseSimilarity + attemptBonus);
-            similarity = Math.floor(similarity);
-            
-            gameState.currentSimilarity = similarity;
-            displaySimilarity(similarity);
-            
-            submitBtn.disabled = false;
-            
-            if (similarity >= 90) {
-                showToast(⁠ ✅ EXCELLENT! ${similarity}% - READY TO SUBMIT ⁠);
-            } else if (similarity >= 70) {
-                showToast(⁠ 👍 GOOD! ${similarity}% - READY TO SUBMIT ⁠);
-            } else if (similarity >= 50) {
-                showToast(⁠ 📸 ${similarity}% - CAN SUBMIT BUT LOW REDUCTION ⁠);
-            } else {
-                showToast(⁠ ⚠️ ${similarity}% - SUBMIT WILL REDUCE LITTLE ENERGY ⁠);
-            }
-        }
-        
-        function displaySimilarity(percent) {
-            similarityMeter.style.display = 'block';
-            similarityFill.style.width = percent + '%';
-            similarityText.textContent = percent + '%';
-            
-            if (percent >= 80) similarityFill.className = 'meter-fill high';
-            else if (percent >= 50) similarityFill.className = 'meter-fill medium';
-            else similarityFill.className = 'meter-fill low';
-        }
-        
-        function submitMatch() {
-            if (gameState.isSubmitted) return;
-            if (gameState.currentSimilarity === 0 && !gameState.currentPhoto) {
-                showToast("CAPTURE A PHOTO FIRST!", "warning");
-                return;
-            }
-            
-            let reduction = getReductionBySimilarity(gameState.currentSimilarity);
-            const timeBonus = Math.min(1.5, Math.floor(gameState.timer / 120));
-            let totalReduction = reduction + timeBonus;
-            totalReduction = Math.min(MAX_REDUCTION_PER_LEVEL, totalReduction);
-            totalReduction = Math.min(gameState.energy, totalReduction);
-            
-            gameState.energy = Math.max(0, gameState.energy - totalReduction);
-            updateEnergyBar();
-            
-            let gradeText = "";
-            if (gameState.currentSimilarity >= 90) {
-                gradeText = "✨ PERFECT MATCH! ✨";
-            } else if (gameState.currentSimilarity >= 70) {
-                gradeText = "🌟 GOOD MATCH! 🌟";
-            } else if (gameState.currentSimilarity >= 50) {
-                gradeText = "✓ ACCEPTABLE MATCH";
-            } else {
-                gradeText = "⚠️ POOR MATCH";
-            }
-            
-            if (totalReduction > 0) {
-                showToast(⁠ ${gradeText} | -${totalReduction.toFixed(1)}% NEGATIVE ENERGY ⁠);
-            } else {
-                showToast(⁠ ${gradeText} | NO ENERGY REDUCED ⁠, "warning");
-            }
-            
-            gameState.isSubmitted = true;
-            gameState.levelCompleted = true;
-            takePhotoBtn.disabled = true;
-            submitBtn.disabled = true;
-            
-            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-            
-            if (gameState.currentLevel === 2) {
-                // 完成所有關卡，顯示對話框
-                showRPGDialogue();
-            } else {
-                nextLevelBtn.style.display = 'block';
-                nextLevelBtn.textContent = "⏭ NEXT LEVEL";
-            }
-        }
-        
-        function updateEnergyBar() {
-            let percentVal = Math.floor(gameState.energy);
-            energyFill.style.width = percentVal + '%';
-            energyPercent.textContent = percentVal + '%';
-            if (gameState.energy <= 30) energyFill.style.background = "repeating-linear-gradient(90deg, #a04444, #a04444 6px, #c55 6px, #c55 12px)";
-            if (gameState.energy <= 10) energyFill.style.background = "#822828";
-        }
-        
-        function nextLevel() {
-            if (gameState.currentLevel < 2) {
-                gameState.currentLevel++;
-                gameState.isSubmitted = false;
-                gameState.levelCompleted = false;
-                gameState.currentPhoto = null;
-                gameState.currentSimilarity = 0;
-                similarityMeter.style.display = 'none';
-                submitBtn.disabled = true;
-                nextLevelBtn.style.display = 'none';
-                takePhotoBtn.disabled = gameState.cameraActive ? false : true;
-                takePhotoBtn.textContent = "📸 CAPTURE";
-                startLevel();
-            }
-        }
-        
-        // FIGHT 按鈕跳轉
-        fightBtn.addEventListener('click', function() {
+
+        function goToBoss() {
+            // 跳轉至最終魔王頁面
             window.location.href = 'boss.html';
-        });
-        
-        function showToast(msg, type = "info") {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.className = 'toast show';
-            if (type === "error") toast.style.background = "#3d1515";
-            else if (type === "warning") toast.style.background = "#4a2a1a";
-            else toast.style.background = "#1e0c0c";
-            toast.style.borderColor = "#b54b4b";
-            setTimeout(() => toast.classList.remove('show'), 2200);
         }
-        
-        window.addEventListener('beforeunload', () => {
-            if (gameState.camera) gameState.camera.getTracks().forEach(t => t.stop());
-            if (gameState.timerInterval) clearInterval(gameState.timerInterval);
-        });
     </script>
 </body>
 </html>
