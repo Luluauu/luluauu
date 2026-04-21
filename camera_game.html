@@ -331,7 +331,7 @@
             bottom: 30px;
             left: 5%;
             width: 90%;
-            min-height: 160px;
+            min-height: 220px;
             background: rgba(30, 15, 15, 0.98);
             border: 4px solid #8b3a3a;
             box-shadow: 0 4px 0 -1px #5a2525, 0 -4px 0 -1px #5a2525, 4px 0 0 -1px #5a2525, -4px 0 0 -1px #5a2525;
@@ -340,6 +340,7 @@
             border-radius: 0;
             display: flex;
             flex-direction: column;
+            align-items: center;
         }
         
         .rpg-name-tag {
@@ -354,21 +355,31 @@
             font-family: 'Press Start 2P', monospace;
         }
         
+        /* 駱駝圖片容器 - 置中 */
+        .camel-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0 15px 0;
+        }
+        
+        .camel-img {
+            width: 120px;
+            height: auto;
+            image-rendering: pixelated;
+        }
+        
         .rpg-message {
             font-size: 13px;
             color: #f0d0d0;
             line-height: 1.6;
-            margin-top: 15px;
             margin-bottom: 20px;
             font-family: 'Press Start 2P', monospace;
             word-break: break-word;
-            flex: 1;
+            text-align: center;
         }
         
         .rpg-next-btn {
-            position: absolute;
-            right: 15px;
-            bottom: 10px;
             background: #8b3a3a;
             border: 2px solid #5a2525;
             color: white;
@@ -377,6 +388,7 @@
             cursor: pointer;
             font-family: 'Press Start 2P', monospace;
             transition: all 0.05s linear;
+            align-self: flex-end;
         }
         
         .rpg-next-btn:active {
@@ -610,6 +622,10 @@
     <!-- RPG 對話框（初始隱藏） -->
     <div id="rpgDialogueContainer" class="rpg-dialogue-container" style="display: none;">
         <div class="rpg-name-tag" id="rpgSpeakerName">幾時駱駝</div>
+        <!-- 駱駝圖片置中 -->
+        <div class="camel-container">
+            <img src="Camel.png" alt="Camel" class="camel-img">
+        </div>
         <div class="rpg-message" id="rpgMessage"></div>
         <button class="rpg-next-btn" id="rpgNextBtn">→</button>
     </div>
@@ -681,10 +697,7 @@
         };
         
         // 對話資料
-        let dialogueIndex = 0;
-        const dialogues = [
-            { speaker: "幾時駱駝", text: "Thank for the drink. (He's put some sugar in it) Have a drink, I've put some sugar in it for you." }
-        ];
+        const dialogueText = "Thank for the drink. (He's put some sugar in it) Have a drink, I've put some sugar in it for you.";
         
         // DOM 元素
         const video = document.getElementById('video');
@@ -703,7 +716,6 @@
         const energyPercent = document.getElementById('energyPercent');
         
         const rpgDialogueContainer = document.getElementById('rpgDialogueContainer');
-        const rpgSpeakerName = document.getElementById('rpgSpeakerName');
         const rpgMessage = document.getElementById('rpgMessage');
         const rpgNextBtn = document.getElementById('rpgNextBtn');
         const rewardModal = document.getElementById('rewardModal');
@@ -728,8 +740,7 @@
             
             // 顯示對話框
             rpgDialogueContainer.style.display = 'flex';
-            rpgSpeakerName.textContent = dialogues[0].speaker;
-            rpgMessage.textContent = dialogues[0].text;
+            rpgMessage.textContent = dialogueText;
             
             // 綁定下一句按鈕
             rpgNextBtn.onclick = function() {
@@ -738,11 +749,6 @@
                 // 顯示獎勵彈窗
                 rewardModal.style.display = 'flex';
             };
-        }
-        
-        // 顯示獎勵彈窗
-        function showRewardModal() {
-            rewardModal.style.display = 'flex';
         }
         
         window.addEventListener('load', () => {
