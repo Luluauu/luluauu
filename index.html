@@ -3,396 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Match AR! - Bookworm & Class-Off Camel</title>
+    <title>Match AR! - Story</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
-             --pixel-border: #3e2828;
-            --pixel-accent: #471e1e;
-            --pixel-text: #2e2525;
-            --pixel-dark: #2a1a1a;
+            --pixel-border: #4a5d23;
+            --pixel-accent: #a8d56f;
+            --pixel-text: #2d4a22;
+            
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            margin: 0; padding: 0; box-sizing: border-box;
             image-rendering: pixelated;
-            image-rendering: crisp-edges;
             -webkit-tap-highlight-color: transparent;
         }
 
         body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #939393;
+            width: 100%; height: 100%; overflow: hidden;
+            background-color: var(--pixel-bg);
             font-family: 'VT323', monospace;
             touch-action: manipulation;
         }
 
-        /* 柔和藍色像素背景 */
-      .background {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+        .background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('background.png') no-repeat center center;
-            background-size: cover;
-            z-index: -1;
-
-        }
-        
-        /* 像素雲朵／淡色點陣效果 */
-        .background::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                repeating-linear-gradient(0deg, rgba(60,100,120,0.08) 0px, rgba(60,100,120,0.08) 2px, transparent 2px, transparent 8px),
-                repeating-linear-gradient(90deg, rgba(200,225,240,0.15) 0px, rgba(200,225,240,0.15) 4px, transparent 4px, transparent 12px);
-            pointer-events: none;
+            background-size: cover; z-index: -1;
         }
 
-        /* 角色容器 */
         .character-container {
-            position: absolute;
-            bottom: 22vh;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 0 6%;
-            pointer-events: none; 
-            z-index: 5;
+            position: absolute; bottom: 25vh; width: 100%;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            padding: 0 5%; pointer-events: none; z-index: 5;
         }
 
         .character {
-            width: 44vw;
-            max-width: 300px;
-            height: auto;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            filter: brightness(0.65) grayscale(0.2) sepia(0.1);
-            transform: scale(0.88);
-            opacity: 0.75;
-            image-rendering: pixelated;
+            width: 45vw; max-width: 280px; height: auto;
+            transition: all 0.2s steps(2);
+            filter: brightness(0.6) grayscale(0.4);
+            transform: scale(0.9); opacity: 0.8;
         }
 
-        /* 活躍角色：明亮，藍色微光效果 */
         .character.active {
-            filter: brightness(1) grayscale(0) drop-shadow(4px 4px 0px rgba(0,0,0,0.12));
-            transform: scale(1.02);
-            opacity: 1;
-            z-index: 10;
-            animation: pixelPop 0.2s steps(2);
+            filter: brightness(1) grayscale(0);
+            transform: scale(1.1); opacity: 1; z-index: 10;
         }
 
-        @keyframes pixelPop {
-            0% { transform: scale(0.98); }
-            100% { transform: scale(1.02); }
-        }
-
-        /* 像素對話框 */
         .pixel-dialogue {
-            position: absolute;
-            bottom: 28px;
-            left: 5%;
-            width: 90%;
-            min-height: 140px;
-            background: #f0f9ff;
-            border: 5px solid var(--pixel-border);
-            box-shadow: 
-                6px 6px 0px 0px rgba(135, 2, 2, 0.1),
-                inset 0 0 0 2px #e2f0f8;
-            padding: 16px 20px;
-            z-index: 20;
-            cursor: pointer;
-            transition: transform 0.05s linear;
-        }
-        
-        .pixel-dialogue:active {
-            transform: scale(0.99);
+            position: absolute; bottom: 30px; left: 5%; width: 90%;
+            min-height: 140px; background: rgba(255, 254, 240, 0.98);
+            border: 4px solid var(--pixel-border);
+            box-shadow: 0 4px 0 -1px var(--pixel-border), 0 -4px 0 -1px var(--pixel-border),
+                        4px 0 0 -1px var(--pixel-border), -4px 0 0 -1px var(--pixel-border);
+            padding: 15px; z-index: 20;
         }
 
         .name-tag {
-            font-size: 26px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            color: #803029;
-            background: var(--pixel-accent);
-            padding: 4px 16px;
-            border: 2px solid var(--pixel-border);
-            position: absolute;
-            top: -22px;
-            left: 16px;
-            box-shadow: 2px 2px 0 var(--pixel-border);
-            text-transform: uppercase;
+            font-size: 22px; color: white; background: var(--pixel-accent);
+            padding: 2px 10px; border: 2px solid var(--pixel-border);
+            position: absolute; top: -20px; left: 10px;
         }
 
         .message {
-            font-size: 28px;
-            color: var(--pixel-text);
-            line-height: 1.2;
-            margin-top: 12px;
-            word-break: break-word;
-            font-weight: 500;
+            font-size: 26px; color: var(--pixel-text);
+            line-height: 1.1; margin-top: 5px;
         }
 
         .next-hint {
-            position: absolute;
-            right: 18px;
-            bottom: 12px;
-            font-size: 22px;
-            color: #432520;
-            background: rgba(83, 90, 93, 0.3);
-            padding: 2px 8px;
-            border-radius: 0;
-            font-family: 'VT323', monospace;
-            animation: bounceX 0.7s steps(2) infinite;
+            position: absolute; right: 15px; bottom: 10px;
+            font-size: 18px; color: var(--pixel-accent);
+            animation: bounce 0.6s steps(2) infinite;
         }
 
-        @keyframes bounceX {
-            0% { transform: translateX(0); opacity: 0.6; }
-            100% { transform: translateX(6px); opacity: 1; }
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
         }
 
-        /* 任務總結畫面 */
         #summary-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgb(77, 54, 52);
-            backdrop-filter: blur(3px);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            z-index: 200;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--pixel-bg);
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 20px; z-index: 100;
         }
 
         .mission-box {
-            border: 8px solid var(--pixel-border);
-            background: #eef6fc;
-            padding: 28px 20px;
-            width: 88%;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 10px 10px 0 var(--pixel-dark);
-            animation: riseUp 0.3s steps(3);
+            border: 6px solid var(--pixel-border);
+            background: white; padding: 25px; width: 85%;
+            text-align: center; box-shadow: 6px 6px 0 var(--pixel-border);
         }
 
-        @keyframes riseUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .mission-title {
-            font-size: 44px;
-            color: #ffffff;
-            margin-bottom: 16px;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 0 #827e7e;
-        }
+        .mission-title { font-size: 36px; color: #d32f2f; margin-bottom: 15px; }
+        .mission-text { font-size: 24px; color: var(--pixel-text); line-height: 1.3; margin-bottom: 10px; }
         
-        .mission-text {
-            font-size: 26px;
-            color: #2a0e0b;
-            line-height: 1.35;
-            margin-bottom: 28px;
-            font-weight: bold;
-        }
-        
-        .mission-text b {
-            color: #33201b;
-            background: #8f8e8d;
-            padding: 0 4px;
-        }
-        
-        .btn-start {
-            font-family: 'VT323', monospace;
-            font-size: 38px;
-            background: var(--pixel-accent);
-            color: #3d3d3d;
+        .start-btn {
+            margin-top: 20px; padding: 10px 20px;
+            background: var(--pixel-accent); color: white;
             border: 4px solid var(--pixel-border);
-            padding: 12px 40px;
+            font-family: 'VT323', monospace; font-size: 24px;
             cursor: pointer;
-            box-shadow: 6px 6px 0 var(--pixel-border);
-            transition: 0.04s linear;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-
-        .btn-start:active {
-            box-shadow: 1px 1px 0 var(--pixel-border);
-            transform: translate(5px, 5px);
-        }
-        
-        /* 像素對話框小裝飾 */
-        .pixel-dialogue::before {
-            content: "";
-            position: absolute;
-            bottom: -12px;
-            left: 30px;
-            width: 20px;
-            height: 20px;
-            background: #f0f9ff;
-            border-left: 4px solid var(--pixel-border);
-            border-bottom: 4px solid var(--pixel-border);
-            border-right: 2px solid transparent;
-            border-top: 2px solid transparent;
-        }
-        
-        @media (max-width: 600px) {
-            .message { font-size: 22px; }
-            .name-tag { font-size: 20px; top: -18px; }
-            .character { width: 48vw; }
-            .mission-text { font-size: 20px; }
-            .btn-start { font-size: 32px; padding: 8px 30px; }
         }
     </style>
 </head>
-<body>
+<body onclick="handleScreenClick()">
 
     <div class="background"></div>
 
     <div class="character-container">
-        <!-- Class-Off Camel (replaces Study Lion) -->
-        <img id="classoff-camel" class="character" src="Camel.png" alt="Class-Off Camel" onerror="this.src='https://placehold.co/400x500/7ba9c4/1e4a62?text=Camel&font=monospace'">
-        <!-- Bookworm (main character) -->
-        <img id="bookworm" class="character" src="Bookworm.png" alt="Bookworm" onerror="this.src='https://placehold.co/400x500/9ac2d4/1e4a62?text=Bookworm&font=monospace'">
+        <img id="camel" class="character" src="Camel.png">
+        <img id="shuchong" class="character" src="Bookworm.png">
     </div>
 
     <div class="pixel-dialogue" id="dialogue-box">
-        <div class="name-tag" id="speaker-name">Class-Off Camel</div>
-        <div class="message" id="message-text">When end the class...</div>
-        <div class="next-hint">▼ TAP TO NEXT ▼</div>
+        <div class="name-tag" id="speaker-name">...</div>
+        <div class="message" id="message-text">...</div>
+        <div class="next-hint">TAP TO NEXT ➔</div>
     </div>
 
     <div id="summary-screen">
         <div class="mission-box">
-            <h1 class="mission-title">✦ MISSION BRIEF ✦</h1>
-            <p class="mission-text" id="mission-text-content">
-
-                ➤ <b>Let's help the camel!</b>
+            <h1 class="mission-title">MISSION BRIEF</h1>
+            <p class="mission-text">
+                <b>Class-Off Camel</b> is trapped in an endless class!<br><br>
+                He needs a drink to survive this 4-hour lecture.<br>
+                Help <b>Bookworm</b> find the drink in the <b>TRIANGLE AREA</b>!<br><br>
+                Go find the items and save him!
             </p>
-            <button class="btn-start" id="start-game-btn">START ➔</button>
+            <button class="start-btn" onclick="window.location.href='camera_game.html'">START MISSION</button>
         </div>
     </div>
 
     <script>
-       
         const story = [
-            { name: "Class-Off Camel", text: "When end the class... When end the class...", active: "classoff-camel" },
-            { name: "Class-Off Camel", text: "When end the class... When end the class...x100", active: "classoff-camel" },
-            { name: "Bookworm", text: "Why is he here just saying his own name?", active: "bookworm" },
-            { name: "Bookworm", text: "(listen carefully)", active: "bookworm" },
-            { name: "Class-Off Camel", text: "When end the class... When end the class...x100", active: "classoff-camel" },
-            { name: "Bookworm", text: "(After hearing it properly) Oh... so it turns out he wasn't saying his own name, but rather \"When will end the class"/", active: "bookworm" },
-            { name: "Class-Off Camel", text: "(suddenly) Did you know we've already been in class for four hours?", active: "classoff-camel" },
-            { name: "Bookworm", text: "...", active: "bookworm" },
-            { name: "Class-Off Camel", text: "Could you help me go out and get some drink?", active: "classoff-camel" },
-            { name: "Bookworm", text: "o…ok", active: "bookworm" }
+            { 
+                name: "幾時駱駝(Class-Off Camel)", 
+                text: "When end the class… When end the class… x100", 
+                active: "camel" 
+            },
+            { 
+                name: "書蟲(Bookworm)", 
+                text: "Why is he here just saying his own name? ", 
+                active: "shuchong" 
+            },
+            { 
+                name: "書蟲(Bookworm)", 
+                text: "(listen carefully)", 
+                active: "shuchong" 
+            },
+            { 
+                name: "幾時駱駝(Class-Off Camel)", 
+                text: "When end the class… When end the class… x100", 
+                active: "camel" 
+            },
+            { 
+                name: "書蟲(Bookworm)", 
+                text: "Oh... so it turns out he wasn't saying his own name（幾時駱駝）, but rather When will end the class （幾時落堂）…", 
+                active: "shuchong" 
+            },
+            { 
+                name: "幾時駱駝(Class-Off Camel)", 
+                text: "(suddenly) Did you know we've already been in class for four hours?", 
+                active: "camel" 
+            },
+            { 
+                name: "書蟲(Bookworm)", 
+                text: "...", 
+                active: "shuchong" 
+            },
+            { 
+                name: "幾時駱駝(Class-Off Camel)", 
+                text: "Could you help me go out and get some drink?", 
+                active: "camel" 
+            },
+            { 
+                name: "書蟲(Bookworm)", 
+                text: "o…ok", 
+                active: "shuchong" 
+            }
         ];
 
         let currentLine = 0;
         let storyFinished = false;
-        
-        const dialogueBox = document.getElementById('dialogue-box');
-        const speakerNameEl = document.getElementById('speaker-name');
-        const messageTextEl = document.getElementById('message-text');
-        const camelImg = document.getElementById('classoff-camel');
-        const bookwormImg = document.getElementById('bookworm');
-        const summaryScreen = document.getElementById('summary-screen');
-        const startBtn = document.getElementById('start-game-btn');
-        
+
         function updateUI() {
             if (currentLine < story.length) {
                 const line = story[currentLine];
-                speakerNameEl.innerText = line.name;
-                messageTextEl.innerText = line.text;
+                document.getElementById('speaker-name').innerText = line.name;
+                document.getElementById('message-text').innerText = line.text;
                 
-                const isCamelActive = (line.active === "classoff-camel");
-                const isWormActive = (line.active === "bookworm");
-                
-                if (isCamelActive) {
-                    camelImg.classList.add('active');
-                    bookwormImg.classList.remove('active');
-                } else if (isWormActive) {
-                    bookwormImg.classList.add('active');
-                    camelImg.classList.remove('active');
-                } else {
-                    camelImg.classList.remove('active');
-                    bookwormImg.classList.remove('active');
-                }
-                
-                // tiny tap feedback
-                dialogueBox.style.transform = "scale(0.99)";
-                setTimeout(() => { if(dialogueBox) dialogueBox.style.transform = ""; }, 80);
+                document.getElementById('camel').classList.toggle('active', line.active === 'camel');
+                document.getElementById('shuchong').classList.toggle('active', line.active === 'shuchong');
             } else {
                 storyFinished = true;
-                if (dialogueBox) dialogueBox.style.display = 'none';
-                if (summaryScreen) summaryScreen.style.display = 'flex';
+                document.getElementById('dialogue-box').style.display = 'none';
+                document.getElementById('summary-screen').style.display = 'flex';
             }
         }
-        
+
         function handleScreenClick() {
-            if (storyFinished) return;
-            if (currentLine < story.length) {
+            if (!storyFinished) {
                 currentLine++;
                 updateUI();
             }
-            if (currentLine >= story.length && !storyFinished) {
-                storyFinished = true;
-                if (dialogueBox) dialogueBox.style.display = 'none';
-                if (summaryScreen) summaryScreen.style.display = 'flex';
-            }
         }
-        
-        // Global click: advances dialogue unless summary is active and click is on start button
-        document.body.addEventListener('click', function(event) {
-            if (summaryScreen && summaryScreen.style.display === 'flex') {
-                // If summary is visible, ignore clicks that would advance story; only start button works.
-                if (event.target === startBtn || startBtn.contains(event.target)) {
-                    return;
-                }
-                return;
-            }
-            if (!storyFinished) {
-                handleScreenClick();
-            }
-        });
-        
-        if (startBtn) {
-            startBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                // Redirect to camera game (same as original)
-                window.location.href = 'camera_game.html';
-            });
-        }
-        
-        function init() {
-            currentLine = 0;
-            storyFinished = false;
-            if (dialogueBox) dialogueBox.style.display = 'block';
-            if (summaryScreen) summaryScreen.style.display = 'none';
-            // Initially highlight Camel (first line)
-            camelImg.classList.add('active');
-            bookwormImg.classList.remove('active');
-            updateUI();
-        }
-        
-        window.addEventListener('load', init);
-        
-        // Prevent summary screen from closing when clicking inside mission box
-        if (summaryScreen) {
-            summaryScreen.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        }
+
+        window.onload = updateUI;
     </script>
 </body>
 </html>
