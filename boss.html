@@ -270,6 +270,93 @@
             image-rendering: pixelated;
         }
 
+        /* 紀念品容器 - 閃光效果 */
+        .soven-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .soven-img {
+            width: 100px;
+            height: auto;
+            z-index: 10;
+            position: relative;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+            animation: itemFloat 2s ease-in-out infinite;
+            image-rendering: pixelated;
+        }
+
+        @keyframes itemFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* 紀念品閃光效果 */
+        .soven-sparkle {
+            position: absolute;
+            background: radial-gradient(circle, #ffffff, #ffffaa);
+            width: 12px;
+            height: 12px;
+            clip-path: polygon(50% 0%, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0% 50%, 39% 35%);
+            animation: sovenBlink 0.7s infinite alternate;
+            z-index: 15;
+            opacity: 0;
+        }
+
+        .ss1 { top: 0px; left: 10px; animation-delay: 0s; }
+        .ss2 { top: 0px; right: 10px; animation-delay: 0.2s; }
+        .ss3 { bottom: 0px; left: 10px; animation-delay: 0.4s; }
+        .ss4 { bottom: 0px; right: 10px; animation-delay: 0.6s; }
+        .ss5 { top: 50%; left: -5px; transform: translateY(-50%); animation-delay: 0.1s; }
+        .ss6 { top: 50%; right: -5px; transform: translateY(-50%); animation-delay: 0.3s; }
+        .ss7 { top: 20%; left: -2px; animation-delay: 0.5s; }
+        .ss8 { bottom: 20%; right: -2px; animation-delay: 0.15s; }
+
+        @keyframes sovenBlink {
+            0%, 100% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 紀念品光暈 */
+        .soven-glow {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background: radial-gradient(circle, 
+                rgba(255, 255, 150, 0.7) 0%, 
+                rgba(255, 200, 100, 0.4) 40%,
+                rgba(255, 255, 255, 0) 80%);
+            animation: pulseGlow 1.5s infinite ease-in-out;
+            z-index: 1;
+            border-radius: 50%;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.9; }
+        }
+
+        /* 紀念品旋轉光環 */
+        .soven-ring {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(255, 255, 150, 0.6);
+            border-radius: 50%;
+            animation: rotateRing 4s linear infinite;
+            z-index: 2;
+        }
+
+        @keyframes rotateRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .modal-btn {
             margin-top: 25px;
             padding: 10px 30px;
@@ -398,7 +485,6 @@
             boss.style.filter = 'none';
             boss.style.left = 'calc(50% - 50px)';
             
-            // 重新啟動計時器
             if (window.timerInterval) clearInterval(window.timerInterval);
             window.timerInterval = setInterval(() => {
                 if (!gameActive) return;
@@ -411,7 +497,6 @@
                 }
             }, 1000);
             
-            // 重新啟動BOSS移動
             if (window.moveInterval) clearTimeout(window.moveInterval);
             function moveBossLoop() {
                 if (bossHP <= 0 || !gameActive) return;
@@ -521,6 +606,19 @@
                         you were definitely chosen.<br>
                         I believe your life will always be smooth sailing.
                     </p>
+                    <div class="soven-container">
+                        <div class="soven-glow"></div>
+                        <div class="soven-ring"></div>
+                        <div class="soven-sparkle ss1"></div>
+                        <div class="soven-sparkle ss2"></div>
+                        <div class="soven-sparkle ss3"></div>
+                        <div class="soven-sparkle ss4"></div>
+                        <div class="soven-sparkle ss5"></div>
+                        <div class="soven-sparkle ss6"></div>
+                        <div class="soven-sparkle ss7"></div>
+                        <div class="soven-sparkle ss8"></div>
+                        <img src="soven.png" class="soven-img">
+                    </div>
                     <div class="victory-text-2" id="victory-part-2">
                         Congratulations! You have completed all tasks!<br>
                         You have received an amulet to drive away your negative emotions
@@ -540,9 +638,7 @@
         }
 
         function retryBattle() {
-            // 關閉彈窗
             document.getElementById('game-modal').style.display = 'none';
-            // 重置戰鬥
             resetBattle();
         }
 
@@ -551,12 +647,14 @@
             const nextBtn = document.getElementById('next-btn');
             const victoryPart2 = document.getElementById('victory-part-2');
             const firstPartText = document.querySelector('#modal-body p');
+            const sovenContainer = document.querySelector('.soven-container');
 
             if (bossImg) bossImg.style.opacity = '0';
             
             setTimeout(() => {
                 if (bossImg) bossImg.style.display = 'none';
                 if (firstPartText) firstPartText.style.display = 'none';
+                if (sovenContainer) sovenContainer.style.display = 'none';
                 if (victoryPart2) victoryPart2.style.display = 'block';
                 if (nextBtn) {
                     nextBtn.innerText = "FINISH";
