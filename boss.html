@@ -2,63 +2,131 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Boss Battle - CD Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Boss Battle - Final Mission</title>
     <style>
-        * { touch-action: manipulation; box-sizing: border-box; }
+        * {
+            touch-action: manipulation;
+            box-sizing: border-box;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+        }
         
         body { 
-            background: #000; margin: 0; padding: 0;
-            display: flex; flex-direction: column;
-            height: 100vh; width: 100vw;
-            font-family: sans-serif; overflow: hidden; color: white;
+            background: #1a0b0b;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+            overflow: hidden;
+            color: #d9c8b2;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
-        /* 血條區 */
+        /* 像素噪点背景 */
+        .cyber-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                #2a1212 0px, #2a1212 2px,
+                #1f0c0c 2px, #1f0c0c 4px
+            );
+            z-index: -2;
+        }
+
+        /* 扫描线 */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.2) 0px, rgba(0,0,0,0.2) 2px, transparent 2px, transparent 4px);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* 血條與計時器區 */
         .header {
-            height: 12%; width: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: #111; border-bottom: 1px solid #333;
+            height: 15%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #201010;
+            border-bottom: 3px solid #7a2e2e;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
         }
 
         .hp-bar-bg {
-            width: 85%; height: 18px;
-            background: #333; border-radius: 9px; overflow: hidden;
-            border: 1.5px solid #666;
+            width: 85%;
+            height: 18px;
+            background: #2b1515;
+            border: 2px solid #611e1e;
+            overflow: hidden;
+            margin-bottom: 5px;
         }
 
         #hp-fill {
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, #ff4757, #ff6b81);
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(90deg, #a33, #a33 6px, #c44 6px, #c44 12px);
             transition: width 0.2s ease;
+        }
+
+        #timer-display {
+            font-size: 12px;
+            color: #eab4b4;
+            font-weight: bold;
+            letter-spacing: 2px;
         }
 
         /* 遊戲舞台 */
         #game-stage {
-            flex: 1; position: relative;
-            width: 100%; background: #1a1a1a;
+            flex: 1;
+            position: relative;
+            width: 100%;
+            background: #1a1a1a;
             overflow: hidden;
+            z-index: 1;
         }
 
         #boss {
             position: absolute;
-            width: 80px; height: 80px;
-            background-image: url('boss.png'); /* 記得換成你的相片 */
+            width: 100px;
+            height: 100px;
+            background-image: url('boss.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            top: 20%; left: calc(50% - 40px);
+            top: 20%;
+            left: calc(50% - 50px);
             transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10;
+            image-rendering: pixelated;
         }
 
         .missile {
-            position: absolute; width: 20px; height: 30px;
-            background-image: url('missile.png'); /* 記得換成你的相片 */
+            position: absolute;
+            width: 28px;
+            height: 28px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             bottom: 0;
+            image-rendering: pixelated;
         }
 
         /* 軌跡動畫 */
@@ -79,101 +147,328 @@
 
         /* 按鈕區 */
         .controller {
-            height: 18%; width: 100%;
-            display: grid; grid-template-columns: repeat(5, 1fr);
-            gap: 5px; padding: 10px;
-            background: #222; border-top: 1px solid #444;
+            height: 18%;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            padding: 12px 10px;
+            background: #201010;
+            border-top: 3px solid #7a2e2e;
+            flex-shrink: 0;
+            z-index: 1;
         }
 
         .fire-btn {
-            position: relative; /* 為了放 CD 遮罩 */
-            border: none; border-radius: 12px;
-            background: #3d3d3d; color: white;
-            font-size: 24px; display: flex;
-            align-items: center; justify-content: center;
+            position: relative;
+            border: 3px solid #832e2e;
+            background: #261010;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
+            padding: 4px;
+            cursor: pointer;
+            transition: all 0.05s linear;
+            border-radius: 0;
         }
 
-        /* 冷卻中的按鈕樣式 */
+        .fire-btn:active {
+            transform: translate(2px, 2px);
+        }
+
+        /* 圖片容器 */
+        .btn-img-container {
+            position: relative;
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fire-btn img {
+            width: 54px;
+            height: 54px;
+            object-fit: contain;
+            z-index: 2;
+            image-rendering: pixelated;
+            position: relative;
+        }
+
+        /* 閃光效果 (Sparkles) 圍繞圖片 */
+        .btn-sparkle {
+            position: absolute;
+            background: radial-gradient(circle, #ffffff, #ffffaa);
+            width: 8px;
+            height: 8px;
+            clip-path: polygon(50% 0%, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0% 50%, 39% 35%);
+            animation: btnBlink 0.6s infinite alternate;
+            z-index: 3;
+            opacity: 0;
+        }
+
+        .btn-sparkle1 { top: 0px; left: 4px; animation-delay: 0s; }
+        .btn-sparkle2 { top: 0px; right: 4px; animation-delay: 0.15s; }
+        .btn-sparkle3 { bottom: 0px; left: 4px; animation-delay: 0.3s; }
+        .btn-sparkle4 { bottom: 0px; right: 4px; animation-delay: 0.45s; }
+        .btn-sparkle5 { top: 50%; left: -2px; transform: translateY(-50%); animation-delay: 0.2s; }
+        .btn-sparkle6 { top: 50%; right: -2px; transform: translateY(-50%); animation-delay: 0.35s; }
+
+        @keyframes btnBlink {
+            0%, 100% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+        }
+
         .fire-btn.cd-active {
-            pointer-events: none; /* 冷卻中不能點擊 */
-            background: #222;
-            opacity: 0.6;
+            pointer-events: none;
+            opacity: 0.4;
         }
 
-        /* 冷卻進度遮罩 */
         .cd-overlay {
             position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 0%;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
             background: rgba(255, 255, 255, 0.2);
             transition: height linear;
+            z-index: 1;
+        }
+
+        /* 彈出視窗樣式 - 深紅像素風格 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            background: #1e0c0c;
+            border: 6px solid #8b3a3a;
+            padding: 25px;
+            box-shadow: 0 0 0 4px #2a1212, 0 0 0 8px #5a2525;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        #boss-victory-img {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+            transition: opacity 2s ease;
+            image-rendering: pixelated;
+        }
+
+        .modal-btn {
+            margin-top: 25px;
+            padding: 10px 30px;
+            background: #8b3a3a;
+            color: white;
+            border: 3px solid #5a2525;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.05s linear;
+        }
+
+        .modal-btn:active {
+            transform: translate(2px, 2px);
+        }
+
+        .victory-text-2 {
+            display: none;
+            color: #e67e7e;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .modal-content p {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #d9c8b2;
         }
     </style>
 </head>
 <body>
+    <div class="cyber-bg"></div>
+    <div class="scan-line"></div>
 
     <div class="header">
-        <div style="font-size: 12px; color: #ff4757; margin-bottom: 4px; font-weight: bold;">BOSS HP</div>
+        <div style="font-size: 10px; color: #e67e7e; margin-bottom: 4px; font-weight: bold;">NEGATIVE ENERGY SOURCE</div>
         <div class="hp-bar-bg"><div id="hp-fill"></div></div>
+        <div id="timer-display">TIME: 60s</div>
     </div>
 
     <div id="game-stage"><div id="boss"></div></div>
 
     <div class="controller">
-        <button class="fire-btn" onclick="shoot(event, 'normal', 400)">🚀<div class="cd-overlay"></div></button>
-        <button class="fire-btn" onclick="shoot(event, 'slow', 1200)">🐢<div class="cd-overlay"></div></button>
-        <button class="fire-btn" onclick="shoot(event, 's-curve', 2000)">🐍<div class="cd-overlay"></div></button>
-        <button class="fire-btn" onclick="shoot(event, 'diagonal', 800)">↗️<div class="cd-overlay"></div></button>
-        <button class="fire-btn" onclick="shoot(event, 'spin', 1500)">🌀<div class="cd-overlay"></div></button>
+        <button class="fire-btn" onclick="shoot(event, 'normal', 400, 'watch.png')">
+            <div class="btn-img-container">
+                <div class="btn-sparkle btn-sparkle1"></div>
+                <div class="btn-sparkle btn-sparkle2"></div>
+                <div class="btn-sparkle btn-sparkle3"></div>
+                <div class="btn-sparkle btn-sparkle4"></div>
+                <div class="btn-sparkle btn-sparkle5"></div>
+                <div class="btn-sparkle btn-sparkle6"></div>
+                <img src="watch.png">
+            </div>
+            <div class="cd-overlay"></div>
+        </button>
+        <button class="fire-btn" onclick="shoot(event, 'slow', 1200, 'bookmark.png')">
+            <div class="btn-img-container">
+                <div class="btn-sparkle btn-sparkle1"></div>
+                <div class="btn-sparkle btn-sparkle2"></div>
+                <div class="btn-sparkle btn-sparkle3"></div>
+                <div class="btn-sparkle btn-sparkle4"></div>
+                <div class="btn-sparkle btn-sparkle5"></div>
+                <div class="btn-sparkle btn-sparkle6"></div>
+                <img src="bookmark.png">
+            </div>
+            <div class="cd-overlay"></div>
+        </button>
+        <button class="fire-btn" onclick="shoot(event, 's-curve', 2000, 'sugar.png')">
+            <div class="btn-img-container">
+                <div class="btn-sparkle btn-sparkle1"></div>
+                <div class="btn-sparkle btn-sparkle2"></div>
+                <div class="btn-sparkle btn-sparkle3"></div>
+                <div class="btn-sparkle btn-sparkle4"></div>
+                <div class="btn-sparkle btn-sparkle5"></div>
+                <div class="btn-sparkle btn-sparkle6"></div>
+                <img src="sugar.png">
+            </div>
+            <div class="cd-overlay"></div>
+        </button>
+        <button class="fire-btn" onclick="shoot(event, 'diagonal', 800, 'coffee.png')">
+            <div class="btn-img-container">
+                <div class="btn-sparkle btn-sparkle1"></div>
+                <div class="btn-sparkle btn-sparkle2"></div>
+                <div class="btn-sparkle btn-sparkle3"></div>
+                <div class="btn-sparkle btn-sparkle4"></div>
+                <div class="btn-sparkle btn-sparkle5"></div>
+                <div class="btn-sparkle btn-sparkle6"></div>
+                <img src="coffee.png">
+            </div>
+            <div class="cd-overlay"></div>
+        </button>
+        <button class="fire-btn" onclick="shoot(event, 'spin', 1500, 'sweatband.png')">
+            <div class="btn-img-container">
+                <div class="btn-sparkle btn-sparkle1"></div>
+                <div class="btn-sparkle btn-sparkle2"></div>
+                <div class="btn-sparkle btn-sparkle3"></div>
+                <div class="btn-sparkle btn-sparkle4"></div>
+                <div class="btn-sparkle btn-sparkle5"></div>
+                <div class="btn-sparkle btn-sparkle6"></div>
+                <img src="sweatband.png">
+            </div>
+            <div class="cd-overlay"></div>
+        </button>
+    </div>
+
+    <div id="game-modal" class="modal-overlay">
+        <div class="modal-content" id="modal-body"></div>
     </div>
 
     <script>
         let bossHP = 100;
+        let timeLeft = 60;
+        let gameActive = true;
         const boss = document.getElementById('boss');
         const hpFill = document.getElementById('hp-fill');
         const stage = document.getElementById('game-stage');
+        const timerDisplay = document.getElementById('timer-display');
 
-        function moveBoss() {
-            if (bossHP <= 0) return;
-            const maxX = stage.clientWidth - boss.clientWidth;
-            boss.style.left = Math.floor(Math.random() * maxX) + 'px';
-            setTimeout(moveBoss, 600 + (bossHP * 4));
-        }
-        moveBoss();
-
-        function shoot(e, type, cdTime) {
-            const btn = e.currentTarget;
+        // 重新開始戰鬥的函數
+        function resetBattle() {
+            bossHP = 100;
+            timeLeft = 60;
+            gameActive = true;
+            hpFill.style.width = '100%';
+            timerDisplay.innerText = 'TIME: 60s';
+            boss.style.filter = 'none';
+            boss.style.left = 'calc(50% - 50px)';
             
-            // 如果正在冷卻中或 Boss 死了，就跳出
-            if (btn.classList.contains('cd-active') || bossHP <= 0) return;
+            // 重新啟動計時器
+            if (window.timerInterval) clearInterval(window.timerInterval);
+            window.timerInterval = setInterval(() => {
+                if (!gameActive) return;
+                timeLeft--;
+                timerDisplay.innerText = `TIME: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    gameActive = false;
+                    clearInterval(window.timerInterval);
+                    showResult(false);
+                }
+            }, 1000);
+            
+            // 重新啟動BOSS移動
+            if (window.moveInterval) clearTimeout(window.moveInterval);
+            function moveBossLoop() {
+                if (bossHP <= 0 || !gameActive) return;
+                const maxX = stage.clientWidth - boss.clientWidth;
+                boss.style.left = Math.floor(Math.random() * maxX) + 'px';
+                window.moveInterval = setTimeout(moveBossLoop, 500 + (bossHP * 3));
+            }
+            moveBossLoop();
+        }
 
-            // 1. 處理冷卻邏輯
+        // 初始BOSS移動
+        function initMoveBoss() {
+            if (window.moveInterval) clearTimeout(window.moveInterval);
+            function moveBossLoop() {
+                if (bossHP <= 0 || !gameActive) return;
+                const maxX = stage.clientWidth - boss.clientWidth;
+                boss.style.left = Math.floor(Math.random() * maxX) + 'px';
+                window.moveInterval = setTimeout(moveBossLoop, 500 + (bossHP * 3));
+            }
+            moveBossLoop();
+        }
+        initMoveBoss();
+
+        // 計時器
+        window.timerInterval = setInterval(() => {
+            if (!gameActive) return;
+            timeLeft--;
+            timerDisplay.innerText = `TIME: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                gameActive = false;
+                clearInterval(window.timerInterval);
+                showResult(false);
+            }
+        }, 1000);
+
+        function shoot(e, type, cdTime, imgUrl) {
+            const btn = e.currentTarget;
+            if (btn.classList.contains('cd-active') || bossHP <= 0 || !gameActive) return;
+
             btn.classList.add('cd-active');
             const overlay = btn.querySelector('.cd-overlay');
-            
-            // 重設遮罩高度
             overlay.style.transition = 'none';
             overlay.style.height = '100%';
-            
-            // 啟動冷卻動畫
             setTimeout(() => {
                 overlay.style.transition = `height ${cdTime}ms linear`;
                 overlay.style.height = '0%';
             }, 10);
+            setTimeout(() => btn.classList.remove('cd-active'), cdTime);
 
-            // 冷卻結束後移除狀態
-            setTimeout(() => {
-                btn.classList.remove('cd-active');
-            }, cdTime);
-
-            // 2. 發射導彈邏輯
             const btnRect = btn.getBoundingClientRect();
             const stageRect = stage.getBoundingClientRect();
             const relativeX = (btnRect.left + btnRect.width / 2) - stageRect.left;
 
             const missile = document.createElement('div');
             missile.className = `missile type-${type}`;
-            missile.style.left = (relativeX - 10) + 'px';
+            missile.style.backgroundImage = `url('${imgUrl}')`;
+            missile.style.left = (relativeX - 14) + 'px';
             stage.appendChild(missile);
 
             const checkHit = setInterval(() => {
@@ -183,29 +478,91 @@
                 if (mRect.left < bRect.right && mRect.right > bRect.left &&
                     mRect.top < bRect.bottom && mRect.bottom > bRect.top) {
                     
-                    // 根據導彈類型決定扣血量 (隨你調整)
                     let dmg = 5;
-                    if (type === 's-curve') dmg = 15;
-                    if (type === 'slow') dmg = 10;
+                    if (type === 's-curve') dmg = 12;
+                    if (type === 'slow') dmg = 8;
 
                     bossHP -= dmg;
-                    if (bossHP < 0) bossHP = 0;
+                    if (bossHP <= 0) {
+                        bossHP = 0;
+                        gameActive = false;
+                        clearInterval(window.timerInterval);
+                        clearTimeout(window.moveInterval);
+                        showResult(true);
+                    }
                     hpFill.style.width = bossHP + '%';
-                    
                     boss.style.filter = 'brightness(5) saturate(0)';
                     setTimeout(() => boss.style.filter = 'none', 80);
 
                     missile.remove();
                     clearInterval(checkHit);
-
-                    if (bossHP === 0) {
-                        alert('Mission Accomplished!');
-                        location.reload();
-                    }
                 }
             }, 16);
 
             setTimeout(() => { if (missile.parentNode) missile.remove(); clearInterval(checkHit); }, 1200);
+        }
+
+        function showResult(isVictory) {
+            const modal = document.getElementById('game-modal');
+            const body = document.getElementById('modal-body');
+            modal.style.display = 'flex';
+
+            if (isVictory) {
+                body.innerHTML = `
+                    <div style="color: #e67e7e; margin-bottom: 10px; font-size: 14px;">負面怪 Devil</div>
+                    <img id="boss-victory-img" src="boss1.png">
+                    <p style="text-align: center;">
+                        It seems… my plan failed.<br>
+                        You are someone who knows how to enjoy campus life,<br>
+                        how to relieve stress,<br>
+                        how to find joy when sad,<br>
+                        and how to persevere in dire straits.<br>
+                        I'm certain,<br>
+                        you were definitely chosen.<br>
+                        I believe your life will always be smooth sailing.
+                    </p>
+                    <div class="victory-text-2" id="victory-part-2">
+                        Congratulations! You have completed all tasks!<br>
+                        You have received an amulet to drive away your negative emotions
+                    </div>
+                    <button class="modal-btn" id="next-btn" onclick="fadeBossAndNext()">NEXT</button>
+                `;
+            } else {
+                body.innerHTML = `
+                    <h2 style="color: #e67e7e; font-size: 18px; margin-bottom: 15px;">Mission failed!</h2>
+                    <p style="text-align: center;">
+                        Unfortunately, you have failed!<br>
+                        Click RETRY to fight again.
+                    </p>
+                    <button class="modal-btn" onclick="retryBattle()">RETRY</button>
+                `;
+            }
+        }
+
+        function retryBattle() {
+            // 關閉彈窗
+            document.getElementById('game-modal').style.display = 'none';
+            // 重置戰鬥
+            resetBattle();
+        }
+
+        function fadeBossAndNext() {
+            const bossImg = document.getElementById('boss-victory-img');
+            const nextBtn = document.getElementById('next-btn');
+            const victoryPart2 = document.getElementById('victory-part-2');
+            const firstPartText = document.querySelector('#modal-body p');
+
+            if (bossImg) bossImg.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (bossImg) bossImg.style.display = 'none';
+                if (firstPartText) firstPartText.style.display = 'none';
+                if (victoryPart2) victoryPart2.style.display = 'block';
+                if (nextBtn) {
+                    nextBtn.innerText = "FINISH";
+                    nextBtn.onclick = () => window.location.href = 'index.html';
+                }
+            }, 2000);
         }
     </script>
 </body>
