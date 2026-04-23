@@ -273,16 +273,16 @@
         /* 紀念品容器 - 閃光效果 */
         .soven-container {
             position: relative;
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 20px;
+            width: 160px;
+            height: 160px;
+            margin: 10px auto 20px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .soven-img {
-            width: 100px;
+            width: 110px;
             height: auto;
             z-index: 10;
             position: relative;
@@ -325,8 +325,8 @@
         /* 紀念品光暈 */
         .soven-glow {
             position: absolute;
-            width: 130px;
-            height: 130px;
+            width: 150px;
+            height: 150px;
             background: radial-gradient(circle, 
                 rgba(255, 255, 150, 0.7) 0%, 
                 rgba(255, 200, 100, 0.4) 40%,
@@ -344,8 +344,8 @@
         /* 紀念品旋轉光環 */
         .soven-ring {
             position: absolute;
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             border: 2px solid rgba(255, 255, 150, 0.6);
             border-radius: 50%;
             animation: rotateRing 4s linear infinite;
@@ -378,6 +378,8 @@
             color: #e67e7e;
             font-weight: bold;
             margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.6;
         }
 
         .modal-content p {
@@ -593,6 +595,7 @@
             modal.style.display = 'flex';
 
             if (isVictory) {
+                // 第一階段：顯示 BOSS 對話
                 body.innerHTML = `
                     <div style="color: #e67e7e; margin-bottom: 10px; font-size: 14px;">負面怪 Devil</div>
                     <img id="boss-victory-img" src="boss1.png">
@@ -606,24 +609,7 @@
                         you were definitely chosen.<br>
                         I believe your life will always be smooth sailing.
                     </p>
-                    <div class="soven-container">
-                        <div class="soven-glow"></div>
-                        <div class="soven-ring"></div>
-                        <div class="soven-sparkle ss1"></div>
-                        <div class="soven-sparkle ss2"></div>
-                        <div class="soven-sparkle ss3"></div>
-                        <div class="soven-sparkle ss4"></div>
-                        <div class="soven-sparkle ss5"></div>
-                        <div class="soven-sparkle ss6"></div>
-                        <div class="soven-sparkle ss7"></div>
-                        <div class="soven-sparkle ss8"></div>
-                        <img src="soven.png" class="soven-img">
-                    </div>
-                    <div class="victory-text-2" id="victory-part-2">
-                        Congratulations! You have completed all tasks!<br>
-                        You have received an amulet to drive away your negative emotions
-                    </div>
-                    <button class="modal-btn" id="next-btn" onclick="fadeBossAndNext()">NEXT</button>
+                    <button class="modal-btn" id="next-btn" onclick="showSovenModal()">NEXT</button>
                 `;
             } else {
                 body.innerHTML = `
@@ -637,30 +623,34 @@
             }
         }
 
+        // 顯示紀念品彈窗（第二階段）
+        function showSovenModal() {
+            const body = document.getElementById('modal-body');
+            body.innerHTML = `
+                <div class="soven-container">
+                    <div class="soven-glow"></div>
+                    <div class="soven-ring"></div>
+                    <div class="soven-sparkle ss1"></div>
+                    <div class="soven-sparkle ss2"></div>
+                    <div class="soven-sparkle ss3"></div>
+                    <div class="soven-sparkle ss4"></div>
+                    <div class="soven-sparkle ss5"></div>
+                    <div class="soven-sparkle ss6"></div>
+                    <div class="soven-sparkle ss7"></div>
+                    <div class="soven-sparkle ss8"></div>
+                    <img src="soven.png" class="soven-img">
+                </div>
+                <div class="victory-text-2" style="display: block;">
+                    Congratulations! You have completed all tasks!<br>
+                    You have received an amulet to drive away your negative emotions
+                </div>
+                <button class="modal-btn" id="finish-btn" onclick="window.location.href='index.html'">FINISH</button>
+            `;
+        }
+
         function retryBattle() {
             document.getElementById('game-modal').style.display = 'none';
             resetBattle();
-        }
-
-        function fadeBossAndNext() {
-            const bossImg = document.getElementById('boss-victory-img');
-            const nextBtn = document.getElementById('next-btn');
-            const victoryPart2 = document.getElementById('victory-part-2');
-            const firstPartText = document.querySelector('#modal-body p');
-            const sovenContainer = document.querySelector('.soven-container');
-
-            if (bossImg) bossImg.style.opacity = '0';
-            
-            setTimeout(() => {
-                if (bossImg) bossImg.style.display = 'none';
-                if (firstPartText) firstPartText.style.display = 'none';
-                if (sovenContainer) sovenContainer.style.display = 'none';
-                if (victoryPart2) victoryPart2.style.display = 'block';
-                if (nextBtn) {
-                    nextBtn.innerText = "FINISH";
-                    nextBtn.onclick = () => window.location.href = 'index.html';
-                }
-            }, 2000);
         }
     </script>
 </body>
